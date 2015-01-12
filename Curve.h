@@ -1,6 +1,5 @@
 #ifndef CURVE_H_INCLUDED
 #define CURVE_H_INCLUDED
-#include "../../octet.h"
 
 class Curve
 {

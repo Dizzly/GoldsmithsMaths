@@ -4,8 +4,15 @@
 //
 // Modular Framework for OpenGLES2 rendering on multiple platforms.
 //
+
+#include "Equation.h"
+#include "Curve.h"
+
 namespace octet {
   
+
+
+
 #ifndef PI
     #define PI 3.1415926535
 #endif

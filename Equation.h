@@ -3,6 +3,7 @@
 
 class Equation
 {
+typedef void(EquatFunc)(float*, float*, float);
 public:
     //returns the number of arguments taken by the function
     int GetNumArgs();
@@ -15,8 +16,12 @@ public:
     //0<T<infinity
     void Compute(float* args, float* ret, float t);
 
+    void SetFunc(EquatFunc*);
+
 private:
     //vars
-}
+
+    EquatFunc* equationFunc;
+};
 
 #endif
