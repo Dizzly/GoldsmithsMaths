@@ -17,17 +17,38 @@ namespace octet {
 #define PI_2 2 * PI //6.28318530718
 #endif
 
-    void Compute_2DSpiroGraph(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
+    void Hypotrochoid(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
     {
         retValues->size = 2;
 
         //x = (a - b)*cos(angleIncre*i) + c*cos(((a - b) / b)*(angleIncre*i));
         retValues->returns[0] = (input->params[0] - input->params[1])*cos(PI_2 * t) + input->params[2] * cos(((input->params[0] - input->params[1]) / input->params[1])*(PI_2 * t));
         //y = (a - b)*sin(angleIncre*i) - d*sin(((a - b) / b)*(angleIncre*i));
-        retValues->returns[1] = (input->params[0] - input->params[1])*sin(PI_2 * t) + input->params[2] * sin(((input->params[0] - input->params[1]) / input->params[1])*(PI_2 * t));
+        retValues->returns[1] = (input->params[0] - input->params[1])*sin(PI_2 * t) - input->params[2] * sin(((input->params[0] - input->params[1]) / input->params[1])*(PI_2 * t));
 
     }
 
+    void Epitrochoid(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
+    {
+        retValues->size = 2;
+
+        //x = (a - b)*cos(angleIncre*i) + c*cos(((a - b) / b)*(angleIncre*i));
+        retValues->returns[0] = (input->params[0] + input->params[1])*cos(PI_2 * t) - input->params[2] * cos(((input->params[0] + input->params[1]) / input->params[1])*(PI_2 * t));
+        //y = (a - b)*sin(angleIncre*i) - d*sin(((a - b) / b)*(angleIncre*i));
+        retValues->returns[1] = (input->params[0] + input->params[1])*sin(PI_2 * t) - input->params[2] * sin(((input->params[0] + input->params[1]) / input->params[1])*(PI_2 * t));
+
+    }
+
+    void Spirograph_2D(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
+    {
+        retValues->size = 2;
+
+        //x = (a - b)*cos(angleIncre*i) + c*cos(((a - b) / b)*(angleIncre*i));
+        retValues->returns[0] = (input->params[0] - input->params[1])*cos(PI_2 * t) + input->params[2] * cos(((input->params[0] - input->params[1]) / input->params[1])*(PI_2 * t));
+        //y = (a - b)*sin(angleIncre*i) - d*sin(((a - b) / b)*(angleIncre*i));
+        retValues->returns[1] = (input->params[0] - input->params[1])*sin(PI_2 * t) - input->params[2] * sin(((input->params[0] - input->params[1]) / input->params[1])*(PI_2 * t));
+
+    }
 
 
     /// Scene containing a box with octet.
@@ -43,7 +64,7 @@ namespace octet {
         Equation* eq;
 
         float t = 0.0001f;
-        float t_increase = 0.001f;
+        float t_increase = 0.005f;
 
         void KeyboardInputControl()
         {
@@ -71,8 +92,8 @@ namespace octet {
 
         void GenerateNewStep()
         {
-            if (t <= 1.0f)
-            {
+            //if (t <= 1.0f)
+            //{
                 eq->Compute(t);
                 scene_node* p = new scene_node();
                 app_scene->add_child(p);
@@ -83,7 +104,7 @@ namespace octet {
                 p->access_nodeToParent()[3] = vec4(x, y, 10, 1);
                 app_scene->add_mesh_instance(new mesh_instance(p, boxMesh, mat));
                 t += t_increase;
-            }
+            //}
         }
 
     public:
@@ -100,13 +121,13 @@ namespace octet {
             boxMesh = new mesh_box(vec3(0.05));
 
             eq = new Equation();
-            float params[10] = { 20, 1, 4 };
+            float params[10] = { 5, 3, 5 };
             eq->SetParameters(Equation::InputParameters(params, 3));
-            eq->SetFunc(Compute_2DSpiroGraph);
+            eq->SetFunc(Hypotrochoid);
 
-            float R = 20;
+            /*float R = 20;
             float r = 1;
-            float d = 4;
+            float d = 4;*/
             
             /*int iterations = 2000;
             int loopMax = iterations * t;
