@@ -1,6 +1,8 @@
 #ifndef EQUATION_H_INCLUDED
 #define EQUATION_H_INCLUDED
 
+
+
 class Equation
 {
     public:
@@ -63,9 +65,11 @@ public:
     }
 
     //Set the actual functions that will be called
-    void SetFunc(EquatFunc* func)
+    void SetFunc(EquatFunc* func,int inputNumber, int returnNumber)
     {
         equationFunc = func;
+        params.size = inputNumber;
+        retValues.size=returnNumber;
     }
 
     //Get/Set the values returned by the equation, normally either 2 or 3
@@ -87,5 +91,45 @@ public:
     
 
 };
+
+#ifndef PI
+#define PI 3.1415926535
+#endif
+#ifndef PI_2
+#define PI_2 2 * PI //6.28318530718
+#endif
+
+void Hypotrochoid(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
+{
+    retValues->size = 2;
+
+    //x = (a - b)*cos(angleIncre*i) + c*cos(((a - b) / b)*(angleIncre*i));
+    retValues->returns[0] = (input->params[0] - input->params[1])*cos(PI_2 * t) + input->params[2] * cos(((input->params[0] - input->params[1]) / input->params[1])*(PI_2 * t));
+    //y = (a - b)*sin(angleIncre*i) - d*sin(((a - b) / b)*(angleIncre*i));
+    retValues->returns[1] = (input->params[0] - input->params[1])*sin(PI_2 * t) - input->params[2] * sin(((input->params[0] - input->params[1]) / input->params[1])*(PI_2 * t));
+
+}
+
+void Epitrochoid(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
+{
+    retValues->size = 2;
+
+    //x = (a - b)*cos(angleIncre*i) + c*cos(((a - b) / b)*(angleIncre*i));
+    retValues->returns[0] = (input->params[0] + input->params[1])*cos(PI_2 * t) - input->params[2] * cos(((input->params[0] + input->params[1]) / input->params[1])*(PI_2 * t));
+    //y = (a - b)*sin(angleIncre*i) - d*sin(((a - b) / b)*(angleIncre*i));
+    retValues->returns[1] = (input->params[0] + input->params[1])*sin(PI_2 * t) - input->params[2] * sin(((input->params[0] + input->params[1]) / input->params[1])*(PI_2 * t));
+
+}
+
+void Spirograph_2D(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
+{
+    retValues->size = 2;
+
+    //x = (a - b)*cos(angleIncre*i) + c*cos(((a - b) / b)*(angleIncre*i));
+    retValues->returns[0] = (input->params[0] - input->params[1])*cos(PI_2 * t) + input->params[2] * cos(((input->params[0] - input->params[1]) / input->params[1])*(PI_2 * t));
+    //y = (a - b)*sin(angleIncre*i) - d*sin(((a - b) / b)*(angleIncre*i));
+    retValues->returns[1] = (input->params[0] - input->params[1])*sin(PI_2 * t) - input->params[2] * sin(((input->params[0] - input->params[1]) / input->params[1])*(PI_2 * t));
+
+}
 
 #endif
