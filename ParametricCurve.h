@@ -3,7 +3,7 @@
 
 #include "../../octet.h"
 #include "Equation.h"
-
+#include "SimpleLine.h"
 
 //a curve class using parametric equations to define where points are
 //the curve will draw from t=0->1 by default
@@ -16,6 +16,7 @@ public:
     {
         maxResolution_ = 1000;
         thickness_ = 1;
+        line_ = new SimpleLine();
         equation_.SetFunc(func,paramNumber,returnNumber);
     }
 
@@ -44,36 +45,23 @@ public:
         
         glLineWidth(thickness_);
 
-        //setting up the mesh
-        //allocating the total space we need
-        m->allocate(sizeof(float)*3 *maxResolution_, 0);
-       
-        //defining how large are information is and how we choose to inerperate it
-        m->set_params(sizeof(float)* 3, 0, maxResolution_, GL_LINE_STRIP, 0);
-       
-        //clear the attributes from the last time we used it
-        m->clear_attributes();
-        
-        //and add an attribute for the position of the vertex
-        m->add_attribute(octet::attribute_pos, 3, GL_FLOAT, 0);
-
-        octet::gl_resource::wolock vl(m->get_vertices());
-        float* vtx = (float*)vl.u8();
+        line_->Init(maxResolution_,m);
 
         float t = minT;
         for (int i = 0; i < maxResolution_;++i)
         {
             equation_.Compute(t);
-            *vtx++ = equation_.GetRet().returns[0];
-            *vtx++ = equation_.GetRet().returns[1];
-            *vtx++ = 0;
+            line_->AddPoint(octet::vec3(equation_.GetRet().returns[0],
+                equation_.GetRet().returns[1],
+                0));
             t += tIncrement;
         }
+        line_->Draw();
     }
 private:
     float thickness_;
     int maxResolution_;
-
+    Line* line_;
     Equation equation_;
 };
 

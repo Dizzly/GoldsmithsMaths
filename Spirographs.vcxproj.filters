@@ -434,6 +434,7 @@
     <ClInclude Include="Line.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="SimpleLine.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\resources\mesh_builder.inl">
