@@ -430,6 +430,10 @@
     <ClInclude Include="Equation.h" />
     <ClInclude Include="ParametricCurve.h" />
     <ClInclude Include="PrettyLine.h" />
+    <ClInclude Include="TextureLine.h" />
+    <ClInclude Include="Line.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\resources\mesh_builder.inl">

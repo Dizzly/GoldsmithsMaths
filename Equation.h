@@ -5,42 +5,42 @@
 
 class Equation
 {
-    public:
-        struct InputParameters
+public:
+    struct InputParameters
+    {
+        float params[10];
+        unsigned size;
+
+        InputParameters(){}
+
+        InputParameters(float par[], int s)
         {
-            float params[10];
-            unsigned size;
-
-            InputParameters(){}
-
-            InputParameters(float par[], int s)
+            for (unsigned i = 0; i < s; i++)
             {
-                for (unsigned i = 0; i < s; i++)
-                {
-                    params[i] = par[i];
-                }                
-                size = s;
+                params[i] = par[i];
             }
+            size = s;
+        }
 
-        };
+    };
 
-        struct ReturnValues
+    struct ReturnValues
+    {
+        float returns[10];
+        unsigned size;
+
+        ReturnValues(){}
+
+        ReturnValues(float ret[], int s)
         {
-            float returns[10];
-            unsigned size;
-
-            ReturnValues(){}
-
-            ReturnValues(float ret[], int s)
+            for (unsigned i = 0; i < s; i++)
             {
-                for (unsigned i = 0; i < s; i++)
-                {
-                    returns[i] = ret[i];
-                }
-                size = s;
+                returns[i] = ret[i];
             }
+            size = s;
+        }
 
-        };
+    };
 
 
     typedef void(EquatFunc)(InputParameters*, ReturnValues*, float);
@@ -65,11 +65,11 @@ public:
     }
 
     //Set the actual functions that will be called
-    void SetFunc(EquatFunc* func,int inputNumber, int returnNumber)
+    void SetFunc(EquatFunc* func, int inputNumber, int returnNumber)
     {
         equationFunc = func;
         params.size = inputNumber;
-        retValues.size=returnNumber;
+        retValues.size = returnNumber;
     }
 
     //Get/Set the values returned by the equation, normally either 2 or 3
@@ -84,11 +84,11 @@ public:
     //0<T<infinity
     void Compute(float t)
     {
-        equationFunc(&params,&retValues,t);
+        equationFunc(&params, &retValues, t);
         //Calling the actual function pointer and returning the values
     }
 
-    
+
 
 };
 
@@ -132,4 +132,13 @@ void Spirograph_2D(Equation::InputParameters* input, Equation::ReturnValues* ret
 
 }
 
+void PrettyFunction(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
+{
+    retValues->size = 2;
+
+    retValues->returns[0] = cos(input->params[0] * t) - pow(cos(input->params[1] * t), input->params[4]);
+    retValues->returns[1] = sin(input->params[2] * t) - pow(sin(input->params[3] * t), input->params[5]);
+
+
+}
 #endif

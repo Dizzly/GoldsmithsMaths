@@ -215,9 +215,11 @@
     <ClInclude Include="..\..\shaders\shader.h" />
     <ClInclude Include="..\..\shaders\shaders.h" />
     <ClInclude Include="..\..\shaders\texture_shader.h" />
+    <ClInclude Include="Line.h" />
     <ClInclude Include="PrettyLine.h" />
     <ClInclude Include="ParametricCurve.h" />
     <ClInclude Include="Equation.h" />
+    <ClInclude Include="TextureLine.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\resources\mesh_builder.inl" />

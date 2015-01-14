@@ -73,14 +73,15 @@ namespace octet {
             mat = new material(vec4(1, 0, 0, 1));
             curveMesh = new mesh();
 
-            curve.SetEquation(Epitrochoid, 3, 2);
+            curve.SetEquation(PrettyFunction, 6, 2);
 
-            float params[10] = { 10, 3, 5 };
-            curve.SetParameters(Equation::InputParameters(params, 3));
+            float params[10] = { 1,80, 1,80 ,3,3 };
+            curve.SetParameters(Equation::InputParameters(params, 6));
 
-            curve.Draw(&(*curveMesh), 0);
-            curve.SetMaxResolution(1000);
-            curve.SetThickness(4);
+            curve.SetMaxResolution(10000);
+            curve.SetThickness(1);
+            curve.Draw(curveMesh, 8);
+           
             
             app_scene->add_mesh_instance(new mesh_instance(new scene_node(), curveMesh, mat));
 
