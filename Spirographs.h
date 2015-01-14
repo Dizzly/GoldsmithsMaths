@@ -25,6 +25,9 @@ namespace octet {
         ref<material> mat;
         ref<mesh> curveMesh;
 
+        //Adding camera control
+        mouse_ball camera;
+
         ParametricCurve curve;
 
         float t = 0.0001f;
@@ -32,6 +35,10 @@ namespace octet {
 
         void KeyboardInputControl()
         {
+            if (is_key_down(key::key_esc))
+            {
+                exit(1);
+            }
             if (is_key_down('W'))
             {
                 app_scene->get_camera_instance(0)->get_node()->access_nodeToParent().translate(0, 1, 0);
@@ -47,6 +54,14 @@ namespace octet {
             if (is_key_down('Q'))
             {
                 app_scene->get_camera_instance(0)->get_node()->access_nodeToParent().translate(0, 0, 1);
+            }
+            if (is_key_down('A'))
+            {
+                app_scene->get_camera_instance(0)->get_node()->access_nodeToParent().translate(-1, 0, 0);
+            }
+            if (is_key_down('D'))
+            {
+                app_scene->get_camera_instance(0)->get_node()->access_nodeToParent().translate(1, 0, 0);
             }
             if (is_key_down(key::key_up))
             {
@@ -85,6 +100,8 @@ namespace octet {
             
             app_scene->add_mesh_instance(new mesh_instance(new scene_node(), curveMesh, mat));
 
+            //initializing the camera
+            camera.init(this, 1, 100);
          
         }
 
@@ -96,6 +113,9 @@ namespace octet {
             int vx = 0, vy = 0;
             get_viewport_size(vx, vy);
             app_scene->begin_render(vx, vy);
+
+            //updating camera
+            camera.update(app_scene->get_camera_instance(0)->get_node()->access_nodeToParent());
 
             // update matrices. assume 30 fps.
             app_scene->update(1.0f / 30);
