@@ -98,6 +98,11 @@ public:
 
 void Hypotrochoid(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
 {
+    assert(input->size == 3);
+   
+
+    static const int expectingOut = 2;
+    
     retValues->size = 2;
 
     //x = (a - b)*cos(angleIncre*i) + c*cos(((a - b) / b)*(angleIncre*i));
@@ -109,6 +114,7 @@ void Hypotrochoid(Equation::InputParameters* input, Equation::ReturnValues* retV
 
 void Epitrochoid(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
 {
+    assert(input->size == 3);
     retValues->size = 2;
 
     //x = (a - b)*cos(angleIncre*i) + c*cos(((a - b) / b)*(angleIncre*i));
@@ -120,6 +126,7 @@ void Epitrochoid(Equation::InputParameters* input, Equation::ReturnValues* retVa
 
 void Spirograph_2D(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
 {
+    assert(input->size == 3);
     retValues->size = 2;
 
     //x = (a - b)*cos(angleIncre*i) + c*cos(((a - b) / b)*(angleIncre*i));
@@ -131,6 +138,7 @@ void Spirograph_2D(Equation::InputParameters* input, Equation::ReturnValues* ret
 
 void PrettyFunction(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)
 {
+    assert(input->size == 6);
     retValues->size = 2;
 
     retValues->returns[0] = cos(input->params[0] * t) - pow(cos(input->params[1] * t), input->params[4]);

@@ -17,7 +17,9 @@ public:
     {
         maxResolution_ = 1000;
         thickness_ = 1;
-        line_ = new PrettyLine();
+        smallestAcceptableArea_ = 0.00001f;
+        tProbeIncrement_ = 0.02f;
+        line_ = new SimpleLine();
         equation_.SetFunc(func,paramNumber,returnNumber);
     }
 
@@ -29,6 +31,28 @@ public:
     void SetParameters(Equation::InputParameters param)
     {
         equation_.SetParameters(param);
+    }
+
+    void GenerateLine(const octet::vec3& pointA, float tA,const octet::vec3& pointB, float tB,float tMax)
+    {
+        /*
+         Uses a triangle's area using two points, and the point between them
+         to calculate the curviture near the 3 points
+         */
+        float midT = tA + ((tB - tA) / 2);
+        equation_.Compute(midT);
+        octet::vec3 pointMid = GetEquationReturn();
+        float triSize = cross(pointA - pointMid, pointB - pointMid).length() / 2;
+        if (triSize <= smallestAcceptableArea_)
+        {
+            line_->AddPoint(pointB);
+            return;
+        }
+        else
+        {
+            GenerateLine(pointA, tA, pointMid, midT,tMax);
+            GenerateLine(pointMid, midT, pointB, tB,tMax);
+        }
     }
 
     void SetThickness(float thick){ thickness_ = thick; }
@@ -45,10 +69,38 @@ public:
         float tIncrement = maxT / maxResolution_;
         
         glLineWidth(thickness_);
+        glPointSize(3);
 
-        line_->Init(maxResolution_,m);
+        line_->Init((int)((maxT-minT)/tProbeIncrement_),m);
 
-        float t = minT;
+
+        equation_.Compute(minT);
+        octet::vec3 start = GetEquationReturn();
+        equation_.Compute(minT + tProbeIncrement_);
+        octet::vec3 next = GetEquationReturn();
+
+        bool done = false;
+        float startT = minT;
+        float nextT = minT + tProbeIncrement_;
+
+        while (!done)
+        {
+            GenerateLine(start, startT, next, nextT, maxT);
+            
+            startT = nextT;
+            nextT += tProbeIncrement_;
+            if (nextT >= maxT)
+            {
+                done = true;
+                break;
+            }
+
+            start = next;
+            equation_.Compute(nextT);
+            next = GetEquationReturn();
+        }
+
+       /* float t = minT;
         for (int i = 0; i < maxResolution_;++i)
         {
             equation_.Compute(t);
@@ -56,14 +108,31 @@ public:
                 equation_.GetRet().returns[1],
                 0));
             t += tIncrement;
-        }
+        }*/
         line_->Draw();
+    }
+private:
+    octet::vec3 GetEquationReturn()
+    {
+        if (equation_.GetRet().size == 3)
+        {
+            return octet::vec3(equation_.GetRet().returns[0],
+                equation_.GetRet().returns[1],
+                equation_.GetRet().returns[2]);
+        }
+        return octet::vec3(equation_.GetRet().returns[0],
+            equation_.GetRet().returns[1],
+            0);
     }
 private:
     float thickness_;
     int maxResolution_;
     Line* line_;
     Equation equation_;
+
+    float tProbeIncrement_;
+
+    float smallestAcceptableArea_;
 };
 
 

@@ -13,7 +13,16 @@ public:
 
     void Draw()override
     {
-        
+        int size = points_.size()*sizeof(float)* 3;
+        meshy_->allocate(size, 0);
+        meshy_->set_params(sizeof(float)* 3, 0, points_.size(), GL_LINE_STRIP, 0);
+        meshy_->clear_attributes();
+        meshy_->add_attribute(octet::attribute_pos, 3, GL_FLOAT, 0);
+
+
+        octet::gl_resource::wolock vl(meshy_->get_vertices());
+        float *vtxP = (float*)vl.u8();
+        memcpy(vtxP, points_.data(), size);
     }
     
     virtual void SetMesh(octet::mesh* mesh)
@@ -30,21 +39,16 @@ public:
         {
             meshy_ = mesh;
         }
-        meshy_->allocate(numberOfVertex*sizeof(float)* 3, 0);
-        meshy_->set_params(sizeof(float)* 3, 0, numberOfVertex, GL_LINE_STRIP, 0);
-        meshy_->clear_attributes();
-        meshy_->add_attribute(octet::attribute_pos, 3, GL_FLOAT, 0);
-        octet::gl_resource::wolock vl(meshy_->get_vertices());
-        vtxP_ = (float*)vl.u8();
+        points_.clear();
+        points_.reserve(numberOfVertex);
     }
     virtual void AddPoint(const octet::vec3& point)override {
-        *vtxP_++ = point.x();
-        *vtxP_++ = point.y();
-        *vtxP_++ = point.z();
+        assert(point.z() <= 0);
+        points_.push_back(point);
     }
 private:
     octet::ref<octet::mesh> meshy_;
-    float * vtxP_;
+    std::vector<octet::vec3p> points_;
 };
 
 
