@@ -6,6 +6,7 @@
 class Equation
 {
 public:
+
     struct InputParameters
     {
         float params[10];
@@ -23,7 +24,6 @@ public:
         }
 
     };
-
     struct ReturnValues
     {
         float returns[10];
@@ -41,7 +41,6 @@ public:
         }
 
     };
-
 
     typedef void(EquatFunc)(InputParameters*, ReturnValues*, float);
 
@@ -88,15 +87,13 @@ public:
         //Calling the actual function pointer and returning the values
     }
 
-
-
 };
 
 #ifndef PI
-#define PI 3.1415926535
+    #define PI 3.1415926535
 #endif
 #ifndef PI_2
-#define PI_2 2 * PI //6.28318530718
+    #define PI_2 2 * PI
 #endif
 
 void Hypotrochoid(Equation::InputParameters* input, Equation::ReturnValues* retValues, float t)

@@ -10,6 +10,8 @@ public:
     virtual void SetMesh(octet::mesh* mesh){};
     virtual void GetMaterial(octet::material* mat){};
 
+    virtual void SetDrawingPrecision(int precision){};
+
     virtual octet::mesh* GetMesh(){ return nullptr; };
     virtual octet::material* GetMaterial(){ return nullptr; };
     virtual void Init(int numberOfVertex, octet::mesh* mesh = nullptr) = 0;

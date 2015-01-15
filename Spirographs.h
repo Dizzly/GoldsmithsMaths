@@ -10,12 +10,7 @@
 
 namespace octet {
 
-
-
-
-
-
-    /// Scene containing a box with octet.
+    /// Scene drawing spirograph
     class Spirographs : public app {
 
     private:
@@ -93,9 +88,9 @@ namespace octet {
             float params[10] = { 1,80, 1,80 ,3,3 };
             curve.SetParameters(Equation::InputParameters(params, 6));
 
-            curve.SetMaxResolution(10000);
+            curve.SetMaxResolution(75);
             curve.SetThickness(1);
-            curve.Draw(curveMesh, 8);
+            curve.Draw(curveMesh, 0.25);
            
             
             app_scene->add_mesh_instance(new mesh_instance(new scene_node(), curveMesh, mat));

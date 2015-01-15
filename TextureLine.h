@@ -1,6 +1,8 @@
 #ifndef TEXTURELINE_H_INCLUDED
 #define TEXTURELINE_H_INCLUDED
 #include "../../octet.h"
+
+
 class TextureLine
 {
 public:

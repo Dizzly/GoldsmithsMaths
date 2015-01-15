@@ -4,6 +4,7 @@
 #include "../../octet.h"
 #include "Equation.h"
 #include "SimpleLine.h"
+#include "PrettyLine.h"
 
 //a curve class using parametric equations to define where points are
 //the curve will draw from t=0->1 by default
@@ -16,7 +17,7 @@ public:
     {
         maxResolution_ = 1000;
         thickness_ = 1;
-        line_ = new SimpleLine();
+        line_ = new PrettyLine();
         equation_.SetFunc(func,paramNumber,returnNumber);
     }
 

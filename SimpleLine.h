@@ -5,14 +5,17 @@
 
 
 //simple lines using GLLines, may require extending
-class SimpleLine:public Line
+class SimpleLine: public Line
 {
 public:
+
     ~SimpleLine(){}
+
     void Draw()override
     {
         
     }
+    
     virtual void SetMesh(octet::mesh* mesh)
     {
         meshy_ = mesh;
