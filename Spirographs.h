@@ -26,7 +26,7 @@ namespace octet {
         ParametricCurve curve;
 
         float t = 0.0001f;
-        float t_increase = 0.01f;
+        float t_increase = 0.04f;
 
         void KeyboardInputControl()
         {
@@ -88,9 +88,9 @@ namespace octet {
             float params[10] = { 1,80, 1,80 ,3,3 };
             curve.SetParameters(Equation::InputParameters(params, 6));
 
-            curve.SetMaxResolution(75);
+            curve.SetMaxResolution(1000);
             curve.SetThickness(1);
-            curve.Draw(curveMesh, 0.25);
+            curve.Draw(curveMesh, 6);
            
             
             app_scene->add_mesh_instance(new mesh_instance(new scene_node(), curveMesh, mat));

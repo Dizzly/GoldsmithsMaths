@@ -48,16 +48,16 @@ public:
         octet::vec3 p2;
         octet::vec3 p3;
 
-
+        
 
         //Calling Bezier Routine, all points must be already added to the Control Points
-        for (unsigned i = 0; i < controlPoints_.size() - 3; i += 3)
+        for (unsigned i = 0; i < calculatedCurves_; i++)
         {
 
-            octet::vec3 p0 = controlPoints_[i];
-            octet::vec3 p1 = controlPoints_[i + 1];
-            octet::vec3 p2 = controlPoints_[i + 2];
-            octet::vec3 p3 = controlPoints_[i + 3];
+            octet::vec3 p0 = controlPoints_[i*4];
+            octet::vec3 p1 = controlPoints_[i*4 + 1];
+            octet::vec3 p2 = controlPoints_[i*4 + 2];
+            octet::vec3 p3 = controlPoints_[i*4 + 3];
 
             //Handling first drawing separately
             if (i == 0)
@@ -75,6 +75,11 @@ public:
             }
 
         }
+        float* v = vtxP_;
+        float x = *v - 2;
+        float y = *v - 1;
+        float z = *v;
+
     }
 
     void SetDrawingPrecision(int precision)override
@@ -101,19 +106,20 @@ public:
         }
 
         //Setting default precision
-        drawingPrecision_ = 100;
-
-        int totalVertexes = drawingPrecision_ * (numberOfVertex- 1); //counting segments between n points
+        drawingPrecision_ = 2;
+        calculatedCurves_= std::floor((float)numberOfVertex / 4);
+        int totalVertexes = drawingPrecision_ * calculatedCurves_; //counting segments between n points
         
-        meshy_->allocate(totalVertexes * sizeof(float) * 3, 0);
-        meshy_->set_params(sizeof(float) * 3, 0, totalVertexes, GL_LINE_STRIP, 0);
+        meshy_->allocate(totalVertexes * sizeof(float)* 3, 0);
+        meshy_->set_params(sizeof(float)* 3, 0, totalVertexes, GL_LINE_STRIP, 0);
+
+        controlPoints_.resize(0);
+        controlPoints_.reserve(totalVertexes);
+ 
         meshy_->clear_attributes();
         meshy_->add_attribute(octet::attribute_pos, 3, GL_FLOAT, 0);
         octet::gl_resource::wolock vl(meshy_->get_vertices());
         vtxP_ = (float*)vl.u8();
-
-        
-
     }
 
     virtual void AddPoint(const octet::vec3& point)override
@@ -128,7 +134,6 @@ private:
     float* vtxP_;
     int drawingPrecision_;
     int calculatedCurves_;//keeps track of how many we already used
-
 };
 
 
