@@ -6,7 +6,6 @@
 //
 // Text overlay
 //
-
 #include "../../octet.h"
 
 #include "Spirographs.h"

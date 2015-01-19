@@ -5,6 +5,7 @@
 // Modular Framework for OpenGLES2 rendering on multiple platforms.
 //
 
+#include "AntTweakBar\AntTweakBar.h"
 #include "Equation.h"
 #include "ParametricCurve.h"
 
@@ -19,6 +20,9 @@ namespace octet {
 
         ref<material> mat;
         ref<mesh> curveMesh;
+
+        TwBar* bar_;
+        int value_;
 
         //Adding camera control
         mouse_ball camera;
@@ -73,6 +77,7 @@ namespace octet {
                 float params[10] = { 80,1,80,1,3,3 };
                 curve.SetParameters(Equation::InputParameters(params, 6));
                 curve.Draw(curveMesh, 8);
+                t = 0;
             }
         }
 
@@ -108,8 +113,7 @@ namespace octet {
             curve.SetMaxResolution(500);
             curve.SetThickness(1);
             curve.Draw(curveMesh, 8);
-           
-            
+         
             app_scene->add_mesh_instance(new mesh_instance(new scene_node(), curveMesh, mat));
 
             //initializing the camera
@@ -119,9 +123,8 @@ namespace octet {
 
         /// this is called to draw the world
         void draw_world(int x, int y, int w, int h) {
-
+           
             KeyboardInputControl();
-
             int vx = 0, vy = 0;
             get_viewport_size(vx, vy);
             app_scene->begin_render(vx, vy);
@@ -134,7 +137,6 @@ namespace octet {
 
             // draw the scene
             app_scene->render((float)vx / vy);
-
             // tumble the box  (there is only one mesh instance)
         }
     };

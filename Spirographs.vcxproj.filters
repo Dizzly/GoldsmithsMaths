@@ -443,5 +443,11 @@
     <None Include="..\..\resources\resources.inl">
       <Filter>resources</Filter>
     </None>
+    <None Include="AntTweakBar\AntTweakBar.dll" />
+    <None Include="AntTweakBar\AntTweakBar64.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="AntTweakBar\AntTweakBar.lib" />
+    <Library Include="AntTweakBar\AntTweakBar64.lib" />
   </ItemGroup>
 </Project>
