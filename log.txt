@@ -1,10 +1,1 @@
-bind 70 modelToProjection
-bind 69 modelToCamera
-bind 1 lighting
-bind 71 num_lights
-bind 0 diffuse
-bind 70 modelToProjection
-bind 69 modelToCamera
-bind 1 lighting
-bind 71 num_lights
-bind 0 diffuse
+http get from: /

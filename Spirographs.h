@@ -5,9 +5,9 @@
 // Modular Framework for OpenGLES2 rendering on multiple platforms.
 //
 
-#include "AntTweakBar\AntTweakBar.h"
 #include "Equation.h"
 #include "ParametricCurve.h"
+
 
 namespace octet {
 
@@ -24,15 +24,77 @@ namespace octet {
         TwBar* bar_;
         int value_;
 
+       
+
+        
+        bool hasChanged_;
+
         //Adding camera control
         mouse_ball camera;
 
         ParametricCurve curve;
 
-        float t = 0.0001f;
-        float t_increase = 0.04f;
+        float t;
+        float oldT;
         int resolution;
 
+
+        void HackyKeyboardTranslation()
+        {
+            if (is_key_going_down('1'))
+            {
+                TwKeyPressed('1', 0);
+            }
+            if (is_key_going_down('2'))
+            {
+                TwKeyPressed('2', 0);
+            }
+            if (is_key_going_down('3'))
+            {
+                TwKeyPressed('3', 0);
+            }
+            if (is_key_going_down('4'))
+            {
+                TwKeyPressed('4', 0);
+            }
+            if (is_key_going_down('5'))
+            {
+                TwKeyPressed('5', 0);
+            }
+            if (is_key_going_down('6'))
+            {
+                TwKeyPressed('6', 0);
+            }
+            if (is_key_going_down('7'))
+            {
+                TwKeyPressed('7', 0);
+            }
+            if (is_key_going_down('8'))
+            {
+                TwKeyPressed('8', 0);
+            }
+            if (is_key_going_down('9'))
+            {
+                TwKeyPressed('9', 0);
+            }
+            if (is_key_going_down('0'))
+            {
+                TwKeyPressed('0', 0);
+            }
+            //for some reason 190 is the key code for '.'
+            //46 is the ascii code for '.'
+            if (is_key_going_down(190))
+            {
+                TwKeyPressed(46, 0);
+            }
+            //control values using ascii found here
+            //http://www.asciitable.com/
+            if (is_key_going_down(key_backspace))
+            {
+                TwKeyPressed(8, 0);
+            }
+            
+        }
         void KeyboardInputControl()
         {
             if (is_key_down(key::key_esc))
@@ -68,32 +130,30 @@ namespace octet {
             {
                 app_scene->get_camera_instance(0)->get_node()->access_nodeToParent().translate(speed, 0, 0);
             }
-            if (is_key_down(key::key_up))
-            {
-                GenerateNewStep();
-            }
             if (is_key_down(key::key_left))
             {
                 float params[10] = { 80,1,80,1,3,3 };
                 curve.SetParameters(Equation::InputParameters(params, 6));
-                curve.Draw(curveMesh, 8);
+                curve.Draw(curveMesh, t);
                 t = 0;
             }
         }
 
-        void GenerateNewStep()
+        void Regen()
         {
-            t += t_increase;
-            curve.Draw(curveMesh, t);
-            
-            
+            if (t != oldT)
+            {
+                curve.Draw(curveMesh, t);
+                oldT = t;
+            }
         }
-
-        
 
     public:
         /// this is called when we construct the class before everything is initialised.
         Spirographs(int argc, char **argv) : app(argc, argv) {
+            t = 0;
+            oldT = t;
+            hasChanged_ = false;
         }
 
         /// this is called once OpenGL is initialized
@@ -112,7 +172,16 @@ namespace octet {
 
             curve.SetMaxResolution(500);
             curve.SetThickness(1);
-            curve.Draw(curveMesh, 8);
+            curve.Draw(curveMesh, t);
+
+
+            TwInit(TW_OPENGL, NULL);
+            TwWindowSize(768, 768 - 35);//minus 30 because "I dont know why"
+
+
+            bar_ = TwNewBar("TweakBar");
+
+            TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &t, "Step=0.01f Min=0.0f");
          
             app_scene->add_mesh_instance(new mesh_instance(new scene_node(), curveMesh, mat));
 
@@ -123,12 +192,25 @@ namespace octet {
 
         /// this is called to draw the world
         void draw_world(int x, int y, int w, int h) {
-           
+            Regen();
             KeyboardInputControl();
+            HackyKeyboardTranslation();
             int vx = 0, vy = 0;
             get_viewport_size(vx, vy);
             app_scene->begin_render(vx, vy);
 
+            int mX = 0, mY = 0;
+            get_mouse_pos(mX, mY);
+            TwMouseMotion(mX, mY);
+
+            if (is_key_going_down(key_lmb))
+            {
+                TwMouseButton(TW_MOUSE_PRESSED, TW_MOUSE_LEFT);
+            }
+            if (!is_key_down(key_lmb) && get_prev_keys()[key_lmb]!=0)
+            {
+                TwMouseButton(TW_MOUSE_RELEASED, TW_MOUSE_LEFT);
+            }
             //updating camera
             camera.update(app_scene->get_camera_instance(0)->get_node()->access_nodeToParent());
 
@@ -138,6 +220,8 @@ namespace octet {
             // draw the scene
             app_scene->render((float)vx / vy);
             // tumble the box  (there is only one mesh instance)
+
+            TwDraw();
         }
     };
 }

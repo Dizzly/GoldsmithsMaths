@@ -6,6 +6,7 @@
 //
 // Text overlay
 //
+#include "AntTweakBar\AntTweakBar.h"
 #include "../../octet.h"
 
 #include "Spirographs.h"
