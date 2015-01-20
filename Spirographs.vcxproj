@@ -44,6 +44,7 @@
     <OutDir>$(SolutionDir)..\..\..\bin\</OutDir>
     <IntDir>$(SolutionDir)..\..\..\bin\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_debug</TargetName>
+    <LibraryPath>C:\Users\Andrea\Documents\Visual Studio 2013\Projects\Spirograph\octet\octet\src\examples\Spirograph\AntTweakBar;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -217,7 +218,7 @@
     <ClInclude Include="..\..\shaders\shaders.h" />
     <ClInclude Include="..\..\shaders\texture_shader.h" />
     <ClInclude Include="Line.h" />
-    <ClInclude Include="PrettyLine.h" />
+    <ClInclude Include="Bezier.h" />
     <ClInclude Include="ParametricCurve.h" />
     <ClInclude Include="Equation.h" />
     <ClInclude Include="SimpleLine.h" />

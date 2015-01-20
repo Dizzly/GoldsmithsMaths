@@ -13,8 +13,6 @@ public:
     void Init()
     {
         octet::param_shader *shader = new octet::param_shader();
-        shader->
-    
     }
 private:
     octet::ref<octet::material> mats_;

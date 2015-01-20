@@ -15,6 +15,11 @@ namespace octet {
     class Spirographs : public app {
 
     private:
+        
+        enum Mode{Spiro, BezierControl};
+
+        Mode mode;
+
         // scene for drawing box
         ref<visual_scene> app_scene;
 
@@ -23,9 +28,6 @@ namespace octet {
 
         TwBar* bar_;
         int value_;
-
-       
-
         
         bool hasChanged_;
 
@@ -33,6 +35,7 @@ namespace octet {
         mouse_ball camera;
 
         ParametricCurve curve;
+        Bezier bz;
 
         float t;
         float oldT;
@@ -95,6 +98,7 @@ namespace octet {
             }
             
         }
+
         void KeyboardInputControl()
         {
             if (is_key_down(key::key_esc))
@@ -130,22 +134,53 @@ namespace octet {
             {
                 app_scene->get_camera_instance(0)->get_node()->access_nodeToParent().translate(speed, 0, 0);
             }
+//<<<<<<< Updated upstream
             if (is_key_down(key::key_left))
             {
                 float params[10] = { 80,1,80,1,3,3 };
                 curve.SetParameters(Equation::InputParameters(params, 6));
                 curve.Draw(curveMesh, t);
                 t = 0;
+//=======   
+            }
+            if (is_key_down(key::key_left))
+            {
+                if (mode == Mode::Spiro)
+                {
+                    float params[10] = { 80, 1, 80, 1, 3, 3 };
+                    curve.SetParameters(Equation::InputParameters(params, 6));
+                    curve.Draw(curveMesh, 8);
+                    t = 0;
+                }
+            }
+            if (is_key_down(key::key_space))
+            {
+                //Switching between the two of them sorry this is bad
+                if (mode == Mode::Spiro)
+                {
+                    bz.Init(app_scene, curveMesh);
+                    mode = Mode::BezierControl;
+                }
+                else
+                {
+                    mode = Mode::Spiro;
+                }
+                
+//>>>>>>> Stashed changes
             }
         }
 
         void Regen()
         {
+//<<<<<<< Updated upstream
             if (t != oldT)
             {
                 curve.Draw(curveMesh, t);
                 oldT = t;
             }
+//=======
+            curve.Draw(curveMesh, t);           
+//>>>>>>> Stashed changes
         }
 
     public:
@@ -165,6 +200,8 @@ namespace octet {
             mat = new material(vec4(1, 0, 0, 1));
             curveMesh = new mesh();
 
+            mode = Mode::Spiro;
+
             curve.SetEquation(PrettyFunction, 6, 2);
 
             float params[10] = { 80,1,1,80,3,3};
@@ -172,26 +209,32 @@ namespace octet {
 
             curve.SetMaxResolution(500);
             curve.SetThickness(1);
+//<<<<<<< Updated upstream
             curve.Draw(curveMesh, t);
 
-
             TwInit(TW_OPENGL, NULL);
-            TwWindowSize(768, 768 - 35);//minus 30 because "I dont know why"
-
+            TwWindowSize(768, 768 - 60);//minus 30 because "I dont know why"
 
             bar_ = TwNewBar("TweakBar");
 
             TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &t, "Step=0.01f Min=0.0f");
          
+//=======
+            curve.Draw(curveMesh, 8);
+
+//>>>>>>> Stashed changes
             app_scene->add_mesh_instance(new mesh_instance(new scene_node(), curveMesh, mat));
 
             //initializing the camera
             camera.init(this, 1, 100);
+
+            
          
         }
 
         /// this is called to draw the world
-        void draw_world(int x, int y, int w, int h) {
+        void draw_world(int x, int y, int w, int h)
+        {
             Regen();
             KeyboardInputControl();
             HackyKeyboardTranslation();
@@ -221,7 +264,11 @@ namespace octet {
             app_scene->render((float)vx / vy);
             // tumble the box  (there is only one mesh instance)
 
+//<<<<<<< Updated upstream
             TwDraw();
+//=======
+           
+//>>>>>>> Stashed changes
         }
     };
 }

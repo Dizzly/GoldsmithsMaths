@@ -4,7 +4,7 @@
 #include "../../octet.h"
 #include "Equation.h"
 #include "SimpleLine.h"
-#include "PrettyLine.h"
+#include "Bezier.h"
 
 //a curve class using parametric equations to define where points are
 //the curve will draw from t=0->1 by default
@@ -13,13 +13,15 @@ class ParametricCurve
 {
 public:
     //default constructor, user can specify a new equation function
-    ParametricCurve(Equation::EquatFunc func = Hypotrochoid,int paramNumber=3,int returnNumber=2)
+    ParametricCurve(Equation::EquatFunc func = Hypotrochoid,int paramNumber=3,int returnNumber=2, int lineType = 0)
     {
         maxResolution_ = 1000;
         thickness_ = 1;
         smallestAcceptableArea_ = 0.00001f;
         tProbeIncrement_ = 0.02f;
+
         line_ = new SimpleLine();
+        
         equation_.SetFunc(func,paramNumber,returnNumber);
     }
 
