@@ -38,6 +38,8 @@ namespace octet {
         float oldT;
         int resolution;
 
+        float color[4];
+
 
         void HackyKeyboardTranslation()
         {
@@ -95,6 +97,8 @@ namespace octet {
             }
             
         }
+
+
         void KeyboardInputControl()
         {
             if (is_key_down(key::key_esc))
@@ -153,6 +157,10 @@ namespace octet {
         Spirographs(int argc, char **argv) : app(argc, argv) {
             t = 0;
             oldT = t;
+            color[0] = 0;
+            color[1] = 0;
+            color[2] = 0;
+            color[3] = 0;
             hasChanged_ = false;
         }
 
@@ -182,6 +190,10 @@ namespace octet {
             bar_ = TwNewBar("TweakBar");
 
             TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &t, "Step=0.01f Min=0.0f");
+            TwAddVarRW(bar_, "bgColor", TW_TYPE_COLOR3F, &color, " label='Background color' ");
+
+            
+
          
             app_scene->add_mesh_instance(new mesh_instance(new scene_node(), curveMesh, mat));
 
@@ -198,6 +210,8 @@ namespace octet {
             int vx = 0, vy = 0;
             get_viewport_size(vx, vy);
             app_scene->begin_render(vx, vy);
+
+            mat->set_diffuse(vec4(color[0], color[1], color[2], color[3]));
 
             int mX = 0, mY = 0;
             get_mouse_pos(mX, mY);
