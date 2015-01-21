@@ -109,7 +109,7 @@ public:
         }
 
         curves = 1;
-
+        visibility = true;
         /*else
         {
             nodes_[0]->access_nodeToParent()[3] = octet::vec4(-10, -10, 0, 1);
@@ -199,6 +199,28 @@ public:
         }
     }
     
+    void ChangeVisibility()
+    {
+        visibility = !visibility;
+        if (!visibility)
+        {
+            for (unsigned i = 0; i < nodes_.size(); i++)
+            {
+                octet::vec3 currentpos = nodes_[i]->access_nodeToParent()[3].xyz();
+                nodes_[i]->access_nodeToParent().translate(octet::vec3(0, 0, -100000));//the first one is the line
+            }
+        }
+        else
+        {
+            for (unsigned i = 0; i < nodes_.size(); i++)
+            {
+                octet::vec3 currentpos = nodes_[i]->access_nodeToParent()[3].xyz();
+                nodes_[i]->access_nodeToParent().translate(octet::vec3(0, 0, -currentpos.z()));//the first one is the line
+            }
+        }
+        
+    }
+    
 private:
     
     octet::material* mat;
@@ -217,6 +239,7 @@ private:
     
     int curves = 0;
     const int drawingPrecision_ = 15;
+    bool visibility = true;
 
     octet::random rand;
      
