@@ -141,8 +141,8 @@ void PrettyFunction(Equation::InputParameters* input, Equation::ReturnValues* re
     assert(input->size == 6);
     retValues->size = 2;
 
-    retValues->returns[0] = cos(input->params[0] * t) - pow(cos(input->params[1] * t), input->params[4]);
-    retValues->returns[1] = sin(input->params[2] * t) - pow(sin(input->params[3] * t), input->params[5]);
+    retValues->returns[0] = cos(input->params[0] * t*PI_2) - pow(cos(input->params[1] * t*PI_2), input->params[4]);
+    retValues->returns[1] = sin(input->params[2] * t*PI_2) - pow(sin(input->params[3] * t*PI_2), input->params[5]);
 
 
 }

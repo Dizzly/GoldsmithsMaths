@@ -58,6 +58,7 @@ public:
     }
 
     void SetThickness(float thick){ thickness_ = thick; }
+
     void SetMaxResolution(int resolution){maxResolution_ = resolution;}
 
     //TODO put all draw specific stuff into a line class
