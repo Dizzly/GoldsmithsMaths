@@ -11,6 +11,12 @@
 
 namespace octet {
 
+
+    void TW_CALL MakeTrue(void *v)
+    {
+        bool* bp = (bool*)v;
+        *bp = true;
+    }
     /// Scene drawing spirograph
     class Spirographs : public app {
 
@@ -24,19 +30,30 @@ namespace octet {
         ref<visual_scene> app_scene;
 
         ref<material> mat;
-        ref<mesh> curveMesh;
+        ref<material> bezMat;
+        ref<mesh> bezMesh;
+        ref<mesh_instance> bezMeshInst;
+
+        std::vector<float> params;
+
+       std::vector<ref<mesh>> curveMeshes_;
+       std::vector < mesh_instance*> meshInst_;
+       std::vector<Equation> equations_;
 
         TwBar* bar_;
         int value_;
         
         bool hasChanged_;
 
-        ParametricCurve curve;
+        ParametricCurve curve_;
+
         Bezier bz;
 
         float t;
         float oldT;
         int resolution;
+        float thickness_;
+        float oldThickness_;
 
         //for mouse movement
         float prev_mmX;
@@ -45,7 +62,36 @@ namespace octet {
         int x_res;
         int y_res;
 
-        float color[4];
+        int currentEquation_;
+        int currentSpiroMesh_;
+        bool shouldPushMesh_;
+        bool shouldResetSpiro_;
+
+        vec4 color;
+        vec4 oldColor;
+
+        bool AreTheSame(vec4 v1, vec4 v2)
+        {
+            return(
+                v1.x() == v2.x() &&
+                v1.y() == v2.y() &&
+                v1.z() == v2.z() &&
+                v1.w() == v2.w()
+                );
+        }
+
+        uint32_t MakeColor(vec4 col)
+        {
+            int r = col.x() * 255;
+            int g = col.y() * 255;
+            int b = col.z() * 255;
+            int a = col.w() * 255;
+
+            uint32_t t = g << 8;
+            uint32_t v = r + g << 8;
+
+            return uint32_t(r + (g << 8) + (b << 16) +(a<<24));
+        }
 
         void GetScreenSize()
         {
@@ -166,22 +212,13 @@ namespace octet {
                     bz.ChangeVisibility();
                 }
             }
-
-            if (is_key_down(key::key_left))
-            {
-                float params[10] = { 80,1,80,1,3,3 };
-                curve.SetParameters(Equation::InputParameters(params, 6));
-                curve.Draw(curveMesh, t);
-                t = 0;
-            }
-            if (is_key_down(key::key_left))
+            if (is_key_going_down(key::key_left))
             {
                 if (mode == Mode::Spiro)
                 {
-                    float params[10] = { 80, 1, 80, 1, 3, 3 };
-                    curve.SetParameters(Equation::InputParameters(params, 6));
-                    curve.Draw(curveMesh, 8);
-                    t = 0;
+                    params = { 80, 1, 80, 1, 3, 3 };
+                    curve_.SetParameters(Equation::InputParameters(params.data(), 6));
+                    curve_.Draw(curveMeshes_[currentSpiroMesh_], t);
                 }
             }
             if (is_key_going_down(key::key_space))
@@ -189,17 +226,23 @@ namespace octet {
                 //Switching between the two of them sorry this is bad
                 if (mode == Mode::Spiro)
                 {
-                    bz.Init(app_scene, curveMesh);
+                    for (int i = 0; i < meshInst_.size(); ++i)
+                    {
+                        meshInst_[i]->set_flags(0);
+                    }
+                    bz.Init(app_scene, bezMesh);
                     bz.Draw();
+                    bezMeshInst->set_flags(mesh_instance::flag_enabled);
                     mode = Mode::BezierControl;
                 }
                 else
                 {
                     bz.Reset();
-                    float params[10] = { 80, 1, 80, 1, 3, 3 };
-                    curve.SetParameters(Equation::InputParameters(params, 6));
-                    curve.Draw(curveMesh, 8);
-                    t = 0;
+                    for (int i = 0; i < meshInst_.size(); ++i)
+                    {
+                        meshInst_[i]->set_flags(mesh_instance::flag_enabled);
+                    }
+                    bezMeshInst->set_flags(0);
                     mode = Mode::Spiro;
                 }                
             }
@@ -257,7 +300,7 @@ namespace octet {
             }
             else if(is_key_going_down(key_rmb))
             {
-                bz.AddControlPoints(app_scene);
+                //bz.AddControlPoints(app_scene);
             }
 
             if (!is_key_down(key_lmb) && get_prev_keys()[key_lmb] != 0)
@@ -267,26 +310,64 @@ namespace octet {
             }
         }
 
+
+
+
         void Regen()
         {
-            if (t != oldT)
+            if ((t != oldT || !AreTheSame(color, oldColor)||thickness_!=oldThickness_)&&mode==Mode::Spiro)
             {
-                curve.Draw(curveMesh, t);
+                curve_.SetColor(MakeColor(color));
+                curve_.SetParameters(Equation::InputParameters(params.data(), 6));
+                curve_.SetThickness(thickness_);
+                curve_.Draw(curveMeshes_[currentSpiroMesh_], t);
                 oldT = t;
+                oldThickness_ = thickness_;
+            }           
+        }
+
+        void PushSpiroMesh()
+        {
+            currentSpiroMesh_++;
+            if (currentSpiroMesh_ >= meshInst_.size())
+            {
+                curveMeshes_.push_back(new mesh());
+                meshInst_.push_back(new mesh_instance(new scene_node(), curveMeshes_.back(), mat, 0));
+                app_scene->add_mesh_instance(meshInst_.back());
             }
-            curve.Draw(curveMesh, t);           
+            else
+            {
+                meshInst_[currentSpiroMesh_]->set_flags(mesh_instance::flag_enabled);
+            }
+
+        }
+
+        void ResetSpiroMesh()
+        {
+            for (int i = curveMeshes_.size()-1; i > 0; --i)
+            {
+                meshInst_[i]->set_flags(0);
+            }
+            params = { 80, 1, 1, 80, 3, 3 };
+            curve_.SetParameters(Equation::InputParameters(params.data(), 6));
+            curve_.SetThickness(thickness_);
+            curve_.SetColor(MakeColor(color));
+            currentSpiroMesh_ = 0;
         }
 
     public:
         /// this is called when we construct the class before everything is initialised.
-        Spirographs(int argc, char **argv) : app(argc, argv) {
-            t = 0;
+        Spirographs(int argc, char **argv) : app(argc, argv), color(1, 1, 1, 1) {
+            t = 1;
             oldT = t;
-            color[0] = 1;
-            color[1] = 1;
-            color[2] = 1;
-            color[3] = 1;
+            oldColor = color;
             hasChanged_ = false;
+            shouldPushMesh_ = false;
+            shouldResetSpiro_ = false;
+            currentSpiroMesh_ = 0;
+            thickness_ = 3;
+            oldThickness_ = thickness_;
+
         }
 
         /// this is called once OpenGL is initialized
@@ -297,32 +378,54 @@ namespace octet {
 
             GetScreenSize();
 
-            mat = new material(vec4(1, 0, 0, 1));
-            curveMesh = new mesh();
+            param_shader* shader = new param_shader("shaders/default.vs",
+                "src/examples/Spirograph/custom_solid.fs");
+            mat = new material(vec4(1,1,1,1),shader);
+
+            bezMat = new material(vec4(1, 1, 1, 1));
+
+            bezMesh = new mesh();
+ 
+
+            curveMeshes_.push_back(new mesh());
 
             mode = Mode::Spiro;
 
-            curve.SetEquation(PrettyFunction, 6, 2);
+            curve_.SetEquation(PrettyFunction, 6, 2);
 
-            float params[10] = { 80,1,1,80,3,3};
-            curve.SetParameters(Equation::InputParameters(params, 6));
 
-            curve.SetMaxResolution(500);
-            curve.SetThickness(1);
+            params= { 80,1,1,80,3,3};
+            curve_.SetParameters(Equation::InputParameters(params.data(), 6));
 
-            curve.Draw(curveMesh, t);
+            curve_.SetMaxResolution(1000);
+            curve_.SetThickness(thickness_);
+
+            curve_.Draw(curveMeshes_[currentSpiroMesh_], t);
 
             TwInit(TW_OPENGL, NULL);
             TwWindowSize(768, 768 - 40);//minus 30 because "I dont know why"
 
             bar_ = TwNewBar("TweakBar");
 
-            TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &t, "Step=0.01f Min=0.0f");
-            TwAddVarRW(bar_, "bgColor", TW_TYPE_COLOR3F, &color, " label='Background color' ");
+            TwAddVarRW(bar_, "Value A", TW_TYPE_FLOAT, &params[0], "");
+            TwAddVarRW(bar_, "Value B", TW_TYPE_FLOAT, &params[1], "");
+            TwAddVarRW(bar_, "Value C", TW_TYPE_FLOAT, &params[2], "");
+            TwAddVarRW(bar_, "Value D", TW_TYPE_FLOAT, &params[3], "");
+            TwAddVarRW(bar_, "Value E", TW_TYPE_FLOAT, &params[4], "");
+            TwAddVarRW(bar_, "Value F", TW_TYPE_FLOAT, &params[5], "");
+            TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &t, "Step=0.001f Min=0.0f Max=1.0f");
+            TwAddVarRW(bar_, "Line Thickness", TW_TYPE_FLOAT, &thickness_, "");
+            TwAddVarRW(bar_, "Line Color", TW_TYPE_COLOR3F, &color, " label='LineColor' ");
+            TwAddButton(bar_, "New Spiro", MakeTrue,&shouldPushMesh_,"");
+            TwAddButton(bar_, "Clear Spiros", MakeTrue, &shouldResetSpiro_, "");
+            
+            meshInst_.push_back(new mesh_instance(new scene_node(), curveMeshes_[currentSpiroMesh_], mat));
+            bezMeshInst = new mesh_instance(new scene_node(), bezMesh, bezMat);
 
-            curve.Draw(curveMesh, 8);
+            app_scene->add_scene_node(bezMeshInst->get_scene_node());
+            app_scene->add_mesh_instance(bezMeshInst);
 
-            app_scene->add_mesh_instance(new mesh_instance(new scene_node(), curveMesh, mat));
+            app_scene->add_mesh_instance(meshInst_[currentSpiroMesh_]);
 
          
         }
@@ -331,6 +434,16 @@ namespace octet {
         void draw_world(int x, int y, int w, int h)
         {
             Regen();
+            if (shouldPushMesh_)
+            {
+                PushSpiroMesh();
+                shouldPushMesh_ = false;
+            }
+            if(shouldResetSpiro_)
+            {
+                ResetSpiroMesh();
+                shouldResetSpiro_ = false;
+            }
 
             KeyboardInputControl();
             HackyKeyboardTranslation();
@@ -339,8 +452,6 @@ namespace octet {
             int vx = 0, vy = 0;
             get_viewport_size(vx, vy);
             app_scene->begin_render(vx, vy);
-
-            mat->set_diffuse(vec4(color[0], color[1], color[2], color[3]));
 
             // update matrices. assume 30 fps.
             app_scene->update(1.0f / 30);

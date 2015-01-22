@@ -33,16 +33,21 @@ private:
 public:
 
     ~Bezier(){}
-
+    Bezier()
+    {
+        mat = 0;
+        selected_mat = 0;
+        numControlPoints = 0;
+    }
     void Draw()
     {
-        if (nodes_.size() < 4)
+        if (numControlPoints < 4)
         {
             return;
         }
 
         //Allocating mesh
-        int sizenode = nodes_.size();
+        int sizenode = numControlPoints;
         int points = curves * drawingPrecision_ + curves;
         int size = points * sizeof(float) * 3;
         meshy_->allocate(size, 0);
@@ -54,12 +59,12 @@ public:
 
         octet::vec3 bz_point;
        
-        for (unsigned i = 0; i < nodes_.size() - 3; i+=3)
+        for (unsigned i = 0; i < numControlPoints - 3; i+=3)
         {
-            octet::vec3 p0 = nodes_[i]->access_nodeToParent()[3].xyz();
-            octet::vec3 p1 = nodes_[i + 1]->access_nodeToParent()[3].xyz();
-            octet::vec3 p2 = nodes_[i + 2]->access_nodeToParent()[3].xyz();
-            octet::vec3 p3 = nodes_[i + 3]->access_nodeToParent()[3].xyz();
+            octet::vec3 p0 = spheres_[i]->get_node()->access_nodeToParent()[3].xyz();
+            octet::vec3 p1 = spheres_[i + 1]->get_node()->access_nodeToParent()[3].xyz();
+            octet::vec3 p2 = spheres_[i + 2]->get_node()->access_nodeToParent()[3].xyz();
+            octet::vec3 p3 = spheres_[i + 3]->get_node()->access_nodeToParent()[3].xyz();
 
             for (unsigned j = 0; j <= drawingPrecision_; j++)
             {
@@ -91,14 +96,35 @@ public:
         {
             meshy_ = mesh;
         }
-        
-        mat = new octet::material(octet::vec4(0, 1, 0, 1));
-        selected_mat = new octet::material(octet::vec4(1, 0, 0, 1));
+        if (!mat)
+        {
+            mat = new octet::material(octet::vec4(0, 1, 0, 1));
+        }
+        if (!selected_mat)
+        {
+            selected_mat = new octet::material(octet::vec4(1, 0, 0, 1));
+        }
+        if (!sphereMesh_)
+        {
+            sphereMesh_ = new octet::mesh_sphere(octet::vec3(0, 0, 0), 0.5f);
+        }
         
         //octet::gl_resource::wolock vl(meshy_->get_vertices());
         //vtxP_ = (float*)vl.u8();
+
+        if (spheres_.size() < 4)
+        {
+            for (int i = 0; i < 4; ++i)
+            {
+                spheres_.push_back(new octet::mesh_instance(new octet::scene_node(),
+                    sphereMesh_, mat));
+                sc->add_scene_node(spheres_[i]->get_node());
+                sc->add_mesh_instance(spheres_[i]);
+            }
+        }
         
         Reset();
+
 
         //if (nodes_.size() == 0)
         {
@@ -122,16 +148,11 @@ public:
     void AddControlPoint(const octet::vec3& point, octet::visual_scene* sc)
     {
         //mesh
-        octet::mesh_sphere* sphere = new octet::mesh_sphere(octet::vec3(0), sphere_size, 2);
-        //node
-        octet::scene_node *node = new octet::scene_node();
-        node->translate(point);
-        nodes_.push_back(node);
-        sc->add_child(node);
+        assert(numControlPoints < 4);
+        spheres_[numControlPoints]->get_node()->access_nodeToParent()[3] = point.xyz1();
+        spheres_[numControlPoints]->set_flags(octet::mesh_instance::flag_enabled);
+        numControlPoints++;
         //instance
-        octet::mesh_instance* mistance = new octet::mesh_instance(node, sphere, mat);
-        spheres_.push_back(mistance);        
-        sc->add_mesh_instance(mistance);
     }
     
     bool CastRay(octet::vec3 start, octet::vec3 end)
@@ -143,12 +164,12 @@ public:
         {
             for (unsigned i = 0; i < spheres_.size() && !collided; i++)
             {
-                octet::vec3 sphere_center = nodes_[i]->access_nodeToParent()[3].xyz();
+                octet::vec3 sphere_center = spheres_[i]->get_node()->access_nodeToParent()[3].xyz();
                 float distance = direction.dot(start - sphere_center)*direction.dot(start - sphere_center) - (start - sphere_center).dot((start - sphere_center)) + sphere_size * sphere_size;
 
                 if (distance >= -5.0f) //offset
                 {
-                    //(*spheres_[i]).set_material(selected_mat);
+                    (*spheres_[i]).set_material(selected_mat);
                     selectedIndex = i;
                     collided = true;
                 }
@@ -162,7 +183,8 @@ public:
         if (selectedIndex != -1)
         {
             //currNode_ = NULL;
-            //(*spheres_[selectedIndex]).set_material(mat);
+            (*spheres_[selectedIndex]).set_material(mat);
+
             selectedIndex = -1;
         }
     }
@@ -172,8 +194,9 @@ public:
         if (selectedIndex != -1)
         {
             //(*spheres_[selectedIndex]).set_material(mat);            
-            nodes_[selectedIndex]->access_nodeToParent().translate(dir * 0.2f);
+            spheres_[selectedIndex]->get_node()->access_nodeToParent().translate(dir * 0.2f);
         }
+        Draw();
     }
 
     void AddControlPoints(octet::visual_scene* sc)
@@ -188,14 +211,13 @@ public:
 
     void Reset()
     {
-        if (nodes_.size() != 0)
+        if (spheres_.size() != 0)
         {
-            for (unsigned i = 0; i < nodes_.size(); i++)
+            numControlPoints = 0;
+            for (unsigned i = 0; i < spheres_.size(); i++)
             {
-                nodes_[i]->access_nodeToParent().translate(octet::vec3(100000, 100000, 0));//the first one is the line
+                spheres_[i]->set_flags(0);//the first one is the line
             }
-            nodes_.reset();
-            spheres_.reset();
         }
     }
     
@@ -204,32 +226,31 @@ public:
         visibility = !visibility;
         if (!visibility)
         {
-            for (unsigned i = 0; i < nodes_.size(); i++)
+            for (unsigned i = 0; i < spheres_.size(); i++)
             {
-                octet::vec3 currentpos = nodes_[i]->access_nodeToParent()[3].xyz();
-                nodes_[i]->access_nodeToParent().translate(octet::vec3(0, 0, -100000));//the first one is the line
+                spheres_[i]->set_flags(0);
             }
         }
         else
         {
-            for (unsigned i = 0; i < nodes_.size(); i++)
+            for (unsigned i = 0; i < spheres_.size(); i++)
             {
-                octet::vec3 currentpos = nodes_[i]->access_nodeToParent()[3].xyz();
-                nodes_[i]->access_nodeToParent().translate(octet::vec3(0, 0, -currentpos.z()));//the first one is the line
+                spheres_[i]->set_flags(octet::mesh_instance::flag_enabled);
             }
         }
         
     }
     
 private:
-    
-    octet::material* mat;
-    octet::material* selected_mat;
+    int numControlPoints;
+    octet::ref<octet::material> mat;
+    octet::ref<octet::material> selected_mat;
     octet::ref<octet::mesh> meshy_;
+
+    static octet::mesh* sphereMesh_;
     //octet::dynarray<octet::vec3> controlPoints_;
-    octet::dynarray<octet::mesh_instance*> spheres_;
+    octet::dynarray<octet::ref<octet::mesh_instance>> spheres_;
     const float sphere_size = 0.5f; 
-    octet::dynarray<octet::scene_node*> nodes_;
     
     //This will be evaluated every time a node is selected;
     octet::scene_node* currNode_ = NULL;
@@ -245,6 +266,6 @@ private:
      
 };
 
-
+octet::mesh* Bezier::sphereMesh_ = 0;
 
 #endif

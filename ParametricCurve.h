@@ -13,16 +13,16 @@ class ParametricCurve
 {
 public:
     //default constructor, user can specify a new equation function
-    ParametricCurve(Equation::EquatFunc func = Hypotrochoid,int paramNumber=3,int returnNumber=2, int lineType = 0)
+    ParametricCurve(Equation::EquatFunc func = Hypotrochoid, int paramNumber = 3, int returnNumber = 2, int lineType = 0)
     {
         maxResolution_ = 1000;
         thickness_ = 1;
-        smallestAcceptableArea_ = 0.00001f;
+        smallestAcceptableArea_ = 0.0001f;
         tProbeIncrement_ = 0.02f;
 
         line_ = new SimpleLine();
-        
-        equation_.SetFunc(func,paramNumber,returnNumber);
+
+        equation_.SetFunc(func, paramNumber, returnNumber);
     }
 
     void SetEquation(Equation::EquatFunc func, int paramNumber, int returnNumber)
@@ -35,7 +35,7 @@ public:
         equation_.SetParameters(param);
     }
 
-    void GenerateLine(const octet::vec3& pointA, float tA,const octet::vec3& pointB, float tB,float tMax)
+    void GenerateLine(const octet::vec3& pointA, float tA, const octet::vec3& pointB, float tB, float tMax)
     {
         /*
          Uses a triangle's area using two points, and the point between them
@@ -47,14 +47,21 @@ public:
         float triSize = cross(pointA - pointMid, pointB - pointMid).length() / 2;
         if (triSize <= smallestAcceptableArea_)
         {
-            line_->AddPoint(pointB);
+            uint32_t col = colorStart_;
+            line_->AddPoint(pointB,col);
             return;
         }
         else
         {
-            GenerateLine(pointA, tA, pointMid, midT,tMax);
-            GenerateLine(pointMid, midT, pointB, tB,tMax);
+            GenerateLine(pointA, tA, pointMid, midT, tMax);
+            GenerateLine(pointMid, midT, pointB, tB, tMax);
         }
+    }
+    //sets the colors that the lines will be drawn with, it can be a solid color
+    //or two colors being interperlated between across the line
+    void SetColor(uint32_t startColor)
+    {
+        colorStart_ = startColor;
     }
 
     void SetThickness(float thick){ thickness_ = thick; }
@@ -62,9 +69,10 @@ public:
     void SetMaxResolution(int resolution){maxResolution_ = resolution;}
 
     //TODO put all draw specific stuff into a line class
-    void Draw(octet::mesh* m, float maxT = 1, float minT = 0){
+    void Draw(octet::mesh* m, float maxT = 1, float minT = 0, uint32_t color = 0){
         if (maxT <= 0 || maxT < minT)
         {
+            
             return;
         }
         //max resolution is how many lines we are allowed to draw with
@@ -73,7 +81,7 @@ public:
         
         glLineWidth(thickness_);
         glPointSize(3);
-
+        
         line_->Init((int)((maxT-minT)/tProbeIncrement_),m);
 
 
@@ -85,6 +93,8 @@ public:
         bool done = false;
         float startT = minT;
         float nextT = minT + tProbeIncrement_;
+
+        
 
         while (!done)
         {
@@ -130,8 +140,10 @@ private:
 private:
     float thickness_;
     int maxResolution_;
-    Line* line_;
+    SimpleLine* line_;
     Equation equation_;
+
+    uint32_t colorStart_;
 
     float tProbeIncrement_;
 

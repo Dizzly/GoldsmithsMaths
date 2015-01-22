@@ -14,7 +14,7 @@ public:
 
         InputParameters(){}
 
-        InputParameters(float par[], int s)
+        InputParameters(float* par, int s)
         {
             for (unsigned i = 0; i < s; i++)
             {
