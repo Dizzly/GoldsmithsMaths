@@ -159,6 +159,13 @@ namespace octet {
             {
                 app_scene->get_camera_instance(0)->get_node()->access_nodeToParent().translate(speed, 0, 0);
             }
+            if (is_key_going_down('V'))
+            {
+                if (mode == Mode::BezierControl)
+                {
+                    bz.ChangeVisibility();
+                }
+            }
 
             if (is_key_down(key::key_left))
             {
@@ -194,8 +201,7 @@ namespace octet {
                     curve.Draw(curveMesh, 8);
                     t = 0;
                     mode = Mode::Spiro;
-                }
-                
+                }                
             }
         }
 
