@@ -31,9 +31,6 @@ namespace octet {
         
         bool hasChanged_;
 
-        //Adding camera control
-        mouse_ball camera;
-
         ParametricCurve curve;
         Bezier bz;
 
@@ -207,10 +204,13 @@ namespace octet {
             int mX = 0, mY = 0;
             get_mouse_pos(mX, mY);
             TwMouseMotion(mX, mY);
-
-            if (is_key_down(key_lmb))
+            if (is_key_going_down(key_lmb))
             {
                 TwMouseButton(TW_MOUSE_PRESSED, TW_MOUSE_LEFT);
+            }
+            if (is_key_down(key_lmb))
+            {
+                
                 //printf("%i,%i\n", mX, mY);
                 if (mode == Mode::BezierControl)
                 {
@@ -276,10 +276,10 @@ namespace octet {
         Spirographs(int argc, char **argv) : app(argc, argv) {
             t = 0;
             oldT = t;
-            color[0] = 0;
-            color[1] = 0;
-            color[2] = 0;
-            color[3] = 0;
+            color[0] = 1;
+            color[1] = 1;
+            color[2] = 1;
+            color[3] = 1;
             hasChanged_ = false;
         }
 
@@ -307,7 +307,7 @@ namespace octet {
             curve.Draw(curveMesh, t);
 
             TwInit(TW_OPENGL, NULL);
-            TwWindowSize(768, 768 - 60);//minus 30 because "I dont know why"
+            TwWindowSize(768, 768 - 40);//minus 30 because "I dont know why"
 
             bar_ = TwNewBar("TweakBar");
 
@@ -318,8 +318,6 @@ namespace octet {
 
             app_scene->add_mesh_instance(new mesh_instance(new scene_node(), curveMesh, mat));
 
-            //initializing the camera
-            camera.init(this, 1, 100);
          
         }
 
@@ -337,9 +335,6 @@ namespace octet {
             app_scene->begin_render(vx, vy);
 
             mat->set_diffuse(vec4(color[0], color[1], color[2], color[3]));
-
-            //updating camera
-            camera.update(app_scene->get_camera_instance(0)->get_node()->access_nodeToParent());
 
             // update matrices. assume 30 fps.
             app_scene->update(1.0f / 30);
