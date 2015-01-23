@@ -42,7 +42,13 @@ namespace octet {
 
         TwBar* bar_;
         int value_;
-        
+
+        typedef enum { COMPLEX, SPIRO1, SPIRO2 } FunctionsType;
+        FunctionsType ftype = COMPLEX;
+
+        TwEnumVal functionsEV[3];
+        TwType ftypeTW;
+
         bool hasChanged_;
 
         ParametricCurve curve_;
@@ -326,7 +332,7 @@ namespace octet {
         
         void Regen()
         {
-            if ((t != oldT || !AreTheSame(color, oldColor)||thickness_!=oldThickness_)&&mode==Mode::Spiro)
+            if ((t != oldT || !AreTheSame(color, oldColor) || thickness_!=oldThickness_) && mode==Mode::Spiro)
             {
                 curve_.SetColor(MakeColor(color));
                 curve_.SetParameters(Equation::InputParameters(params.data(), 6));
@@ -415,15 +421,26 @@ namespace octet {
             //TWBAr initialisation
             TwInit(TW_OPENGL, NULL);
             TwWindowSize(768, 768 - 76);//minus 30 because "I dont know why"
+                       
 
             bar_ = TwNewBar("TweakBar");
 
-            TwAddVarRW(bar_, "ValueA", TW_TYPE_FLOAT, &params[0], " label='First Param' ");
-            TwAddVarRW(bar_, "ValueB", TW_TYPE_FLOAT, &params[1], " label='Second Param' ");
-            TwAddVarRW(bar_, "ValueC", TW_TYPE_FLOAT, &params[2], " label='Third Param' ");
-            TwAddVarRW(bar_, "ValueD", TW_TYPE_FLOAT, &params[3], " label='Fourth Param' ");
-            TwAddVarRW(bar_, "ValueE", TW_TYPE_FLOAT, &params[4], " label='Fifth Param' ");
-            TwAddVarRW(bar_, "ValueF", TW_TYPE_FLOAT, &params[5], " label='Sixth Param' ");
+            //FunctionEnumInitialisation
+            // Defining function enum type
+            functionsEV[0] = { COMPLEX, "Complex" };
+            functionsEV[1] = { SPIRO1, "Spiro 1" };
+            functionsEV[2] = { SPIRO2, "Spiro 2" };
+
+            ftypeTW = TwDefineEnum("FunctionType", functionsEV, 3);
+            // Adding season to bar
+            TwAddVarRW(bar_, "Function", ftypeTW, &ftype, NULL);
+
+            TwAddVarRW(bar_, "Value1", TW_TYPE_FLOAT, &params[0], " label='First Param' ");
+            TwAddVarRW(bar_, "Value2", TW_TYPE_FLOAT, &params[1], " label='Second Param' ");
+            TwAddVarRW(bar_, "Value3", TW_TYPE_FLOAT, &params[2], " label='Third Param' ");
+            TwAddVarRW(bar_, "Value4", TW_TYPE_FLOAT, &params[3], " label='Fourth Param' ");
+            TwAddVarRW(bar_, "Value5", TW_TYPE_FLOAT, &params[4], " label='Fifth Param' ");
+            TwAddVarRW(bar_, "Value6", TW_TYPE_FLOAT, &params[5], " label='Sixth Param' ");
             TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &t, "Step=0.001f Min=0.0f Max=1.0f");
             TwAddVarRW(bar_, "Line Thickness", TW_TYPE_FLOAT, &thickness_, "");
             TwAddVarRW(bar_, "Line Color", TW_TYPE_COLOR3F, &color, " label='LineColor' ");
