@@ -226,13 +226,16 @@ namespace octet {
                 //Switching between the two of them sorry this is bad
                 if (mode == Mode::Spiro)
                 {
+                    //Disable drawing of the spiro meshes
                     for (int i = 0; i < meshInst_.size(); ++i)
                     {
                         meshInst_[i]->set_flags(0);
                     }
+                    //Enabling Bezier curves
+                    bezMeshInst->set_flags(mesh_instance::flag_enabled);
                     bz.Init(app_scene, bezMesh);
                     bz.Draw();
-                    bezMeshInst->set_flags(mesh_instance::flag_enabled);
+                    
                     mode = Mode::BezierControl;
                 }
                 else
@@ -379,7 +382,7 @@ namespace octet {
                 "src/examples/Spirograph/custom_solid.fs");
             mat = new material(vec4(1,1,1,1),shader);
 
-            bezMat = new material(vec4(1, 1, 1, 1));
+            bezMat = new material(vec4(0, 0, 0, 1));
 
             bezMesh = new mesh(); 
 
