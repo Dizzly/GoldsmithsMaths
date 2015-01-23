@@ -309,10 +309,7 @@ namespace octet {
                 TwMouseButton(TW_MOUSE_RELEASED, TW_MOUSE_LEFT);
             }
         }
-
-
-
-
+        
         void Regen()
         {
             if ((t != oldT || !AreTheSame(color, oldColor)||thickness_!=oldThickness_)&&mode==Mode::Spiro)
@@ -384,15 +381,14 @@ namespace octet {
 
             bezMat = new material(vec4(1, 1, 1, 1));
 
-            bezMesh = new mesh();
- 
+            bezMesh = new mesh(); 
 
             curveMeshes_.push_back(new mesh());
 
             mode = Mode::Spiro;
 
+            //Spiro initialisation
             curve_.SetEquation(PrettyFunction, 6, 2);
-
 
             params= { 80,1,1,80,3,3};
             curve_.SetParameters(Equation::InputParameters(params.data(), 6));
@@ -402,8 +398,9 @@ namespace octet {
 
             curve_.Draw(curveMeshes_[currentSpiroMesh_], t);
 
+            //TWBAr initialisation
             TwInit(TW_OPENGL, NULL);
-            TwWindowSize(768, 768 - 40);//minus 30 because "I dont know why"
+            TwWindowSize(768, 768 - 76);//minus 30 because "I dont know why"
 
             bar_ = TwNewBar("TweakBar");
 
@@ -419,6 +416,7 @@ namespace octet {
             TwAddButton(bar_, "New Spiro", MakeTrue,&shouldPushMesh_,"");
             TwAddButton(bar_, "Clear Spiros", MakeTrue, &shouldResetSpiro_, "");
             
+            //Bezier initialization
             meshInst_.push_back(new mesh_instance(new scene_node(), curveMeshes_[currentSpiroMesh_], mat));
             bezMeshInst = new mesh_instance(new scene_node(), bezMesh, bezMat);
 
@@ -426,7 +424,6 @@ namespace octet {
             app_scene->add_mesh_instance(bezMeshInst);
 
             app_scene->add_mesh_instance(meshInst_[currentSpiroMesh_]);
-
          
         }
 

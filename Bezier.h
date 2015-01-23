@@ -47,6 +47,7 @@ public:
         }
 
         //Allocating mesh
+
         int sizenode = numControlPoints;
         int points = curves * drawingPrecision_ + curves;
         int size = points * sizeof(float) * 3;
@@ -124,7 +125,6 @@ public:
         }
         
         Reset();
-
 
         //if (nodes_.size() == 0)
         {
@@ -249,11 +249,12 @@ private:
 
     static octet::mesh* sphereMesh_;
     //octet::dynarray<octet::vec3> controlPoints_;
+    //I will use this as a pool object
     octet::dynarray<octet::ref<octet::mesh_instance>> spheres_;
     const float sphere_size = 0.5f; 
     
     //This will be evaluated every time a node is selected;
-    octet::scene_node* currNode_ = NULL;
+    //octet::scene_node* currNode_ = NULL;
     int selectedIndex = -1;
 
     float* vtxP_;
