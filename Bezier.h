@@ -49,6 +49,13 @@ public:
         //Allocating mesh
 
         int sizenode = numControlPoints;
+        int curves = numControlPoints/3;
+        //tricky check:
+        // example: if 6 I ll consider two lines
+        // but I need 7 points for two lines
+        // so I ll just check the remainder of division
+        if (numControlPoints % 3 == 0)
+            curves--;
         int points = curves * drawingPrecision_ + curves;
         int size = points * sizeof(float) * 3;
         meshy_->allocate(size, 0);
@@ -148,9 +155,24 @@ public:
     void AddControlPoint(const octet::vec3& point, octet::visual_scene* sc)
     {
         //mesh
-        assert(numControlPoints < 4);
-        spheres_[numControlPoints]->get_node()->access_nodeToParent()[3] = point.xyz1();
-        spheres_[numControlPoints]->set_flags(octet::mesh_instance::flag_enabled);
+        //At this stage you always has numcontrolpoints less than size
+        assert(numControlPoints <= spheres_.size());
+        //Check if need to create another mesh sphere instance:
+        if (numControlPoints == spheres_.size())
+        {
+            spheres_.push_back(new octet::mesh_instance(new octet::scene_node(),
+                 sphereMesh_,
+                 mat));
+            spheres_[numControlPoints]->get_node()->access_nodeToParent()[3] = point.xyz1();
+            sc->add_scene_node(spheres_[numControlPoints]->get_node());
+            sc->add_mesh_instance(spheres_[numControlPoints]);
+        }
+        else
+        {
+            spheres_[numControlPoints]->get_node()->access_nodeToParent()[3] = point.xyz1();
+            spheres_[numControlPoints]->set_flags(octet::mesh_instance::flag_enabled);
+        }
+        
         numControlPoints++;
         //instance
     }
@@ -165,7 +187,7 @@ public:
             for (unsigned i = 0; i < spheres_.size() && !collided; i++)
             {
                 octet::vec3 sphere_center = spheres_[i]->get_node()->access_nodeToParent()[3].xyz();
-                float distance = direction.dot(start - sphere_center)*direction.dot(start - sphere_center) - (start - sphere_center).dot((start - sphere_center)) + sphere_size * sphere_size;
+                float distance = direction.dot(start - sphere_center)*direction.dot(start - sphere_center) - (start - sphere_center).dot((start - sphere_center)) + sphere_radius * sphere_radius;
 
                 if (distance >= -5.0f) //offset
                 {
@@ -194,7 +216,7 @@ public:
         if (selectedIndex != -1)
         {
             //(*spheres_[selectedIndex]).set_material(mat);            
-            spheres_[selectedIndex]->get_node()->access_nodeToParent().translate(dir * 0.2f);
+            spheres_[selectedIndex]->get_node()->access_nodeToParent().translate(dir * 0.4f);
         }
         Draw();
     }
@@ -216,7 +238,7 @@ public:
             numControlPoints = 0;
             for (unsigned i = 0; i < spheres_.size(); i++)
             {
-                spheres_[i]->set_flags(0);//the first one is the line
+                spheres_[i]->set_flags(0);//Disabling Drawing for all of the controlpoints
             }
         }
     }
@@ -251,7 +273,7 @@ private:
     //octet::dynarray<octet::vec3> controlPoints_;
     //I will use this as a pool object
     octet::dynarray<octet::ref<octet::mesh_instance>> spheres_;
-    const float sphere_size = 0.5f; 
+    const float sphere_radius = 0.5f; 
     
     //This will be evaluated every time a node is selected;
     //octet::scene_node* currNode_ = NULL;

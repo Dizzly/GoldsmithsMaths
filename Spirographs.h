@@ -48,6 +48,7 @@ namespace octet {
         ParametricCurve curve_;
 
         Bezier bz;
+        octet::random rand;
 
         float t;
         float oldT;
@@ -240,12 +241,15 @@ namespace octet {
                 }
                 else
                 {
+                    //Resetting Bezier
                     bz.Reset();
+                    bezMeshInst->set_flags(0);
+                    // Enabling Spiro
                     for (int i = 0; i < meshInst_.size(); ++i)
                     {
                         meshInst_[i]->set_flags(mesh_instance::flag_enabled);
                     }
-                    bezMeshInst->set_flags(0);
+                    
                     mode = Mode::Spiro;
                 }                
             }
@@ -303,7 +307,9 @@ namespace octet {
             }
             else if(is_key_going_down(key_rmb))
             {
-                //bz.AddControlPoints(app_scene);
+                octet::vec3 newPos(rand.get(-12, 12), rand.get(-12, 12), 0);
+                bz.AddControlPoint(newPos,app_scene);
+                bz.Draw();
             }
 
             if (!is_key_down(key_lmb) && get_prev_keys()[key_lmb] != 0)
