@@ -418,18 +418,20 @@ namespace octet {
 
             bar_ = TwNewBar("TweakBar");
 
-            TwAddVarRW(bar_, "Value A", TW_TYPE_FLOAT, &params[0], "");
-            TwAddVarRW(bar_, "Value B", TW_TYPE_FLOAT, &params[1], "");
-            TwAddVarRW(bar_, "Value C", TW_TYPE_FLOAT, &params[2], "");
-            TwAddVarRW(bar_, "Value D", TW_TYPE_FLOAT, &params[3], "");
-            TwAddVarRW(bar_, "Value E", TW_TYPE_FLOAT, &params[4], "");
-            TwAddVarRW(bar_, "Value F", TW_TYPE_FLOAT, &params[5], "");
+            TwAddVarRW(bar_, "ValueA", TW_TYPE_FLOAT, &params[0], " label='First Param' ");
+            TwAddVarRW(bar_, "ValueB", TW_TYPE_FLOAT, &params[1], " label='Second Param' ");
+            TwAddVarRW(bar_, "ValueC", TW_TYPE_FLOAT, &params[2], " label='Third Param' ");
+            TwAddVarRW(bar_, "ValueD", TW_TYPE_FLOAT, &params[3], " label='Fourth Param' ");
+            TwAddVarRW(bar_, "ValueE", TW_TYPE_FLOAT, &params[4], " label='Fifth Param' ");
+            TwAddVarRW(bar_, "ValueF", TW_TYPE_FLOAT, &params[5], " label='Sixth Param' ");
             TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &t, "Step=0.001f Min=0.0f Max=1.0f");
             TwAddVarRW(bar_, "Line Thickness", TW_TYPE_FLOAT, &thickness_, "");
             TwAddVarRW(bar_, "Line Color", TW_TYPE_COLOR3F, &color, " label='LineColor' ");
             TwAddButton(bar_, "New Spiro", MakeTrue,&shouldPushMesh_,"");
             TwAddButton(bar_, "Clear Spiros", MakeTrue, &shouldResetSpiro_, "");
             
+            
+
             //Bezier initialization
             meshInst_.push_back(new mesh_instance(new scene_node(), curveMeshes_[currentSpiroMesh_], mat));
             bezMeshInst = new mesh_instance(new scene_node(), bezMesh, bezMat);
