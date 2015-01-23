@@ -237,6 +237,9 @@ namespace octet {
                     bz.Init(app_scene, bezMesh);
                     bz.Draw();
                     
+                    
+                    TwDefine(" TweakBar visible=false ");
+
                     mode = Mode::BezierControl;
                 }
                 else
@@ -250,6 +253,8 @@ namespace octet {
                         meshInst_[i]->set_flags(mesh_instance::flag_enabled);
                     }
                     
+                    TwDefine(" TweakBar visible=true ");  // mybar is hidden
+
                     mode = Mode::Spiro;
                 }                
             }
