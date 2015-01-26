@@ -490,7 +490,7 @@ namespace octet {
             TwAddVarRW(bar_, "Value4", TW_TYPE_FLOAT, &curr.params[3], " label='Fourth Param' Min=0.01f");
             TwAddVarRW(bar_, "Value5", TW_TYPE_FLOAT, &curr.params[4], " label='Fifth Param' Min=0.01f");
             TwAddVarRW(bar_, "Value6", TW_TYPE_FLOAT, &curr.params[5], " label='Sixth Param' Min=0.01f");
-            TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &curr.t, "Step=0.001f Min=0.0f Max=10f");
+            TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &curr.t, "Step=0.001f Min=0.0f Max=100f");
 
             TwAddVarRW(bar_, "Line Thickness", TW_TYPE_FLOAT, &curr.thickness, "");
             TwAddVarRW(bar_, "Line Color", TW_TYPE_COLOR3F, &curr.color, " label='LineColor' ");
