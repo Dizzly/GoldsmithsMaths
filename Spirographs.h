@@ -531,7 +531,7 @@ namespace octet {
 
             int vx = 0, vy = 0;
             get_viewport_size(vx, vy);
-            app_scene->begin_render(vx, vy);
+            app_scene->begin_render(vx, vy,vec4(0,0,0,1));
 
             // update matrices. assume 30 fps.
             app_scene->update(1.0f / 30);
