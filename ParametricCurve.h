@@ -17,7 +17,7 @@ public:
     {
         maxResolution_ = 1000;
         thickness_ = 1;
-        smallestAcceptableArea_ = 0.0001f;
+        smallestAcceptableArea_ = 0.00001f;
         tProbeIncrement_ = 0.02f;
 
         line_ = new SimpleLine();
@@ -25,7 +25,7 @@ public:
         equation_.SetFunc(func, paramNumber, returnNumber);
     }
 
-    void SetEquation(Equation::EquatFunc func, int paramNumber, int returnNumber)
+    void SetEquation(Equation::EquatFunc func, int paramNumber=10, int returnNumber=10)
     {
         equation_.SetFunc(func, paramNumber, returnNumber);
     }
