@@ -1,3 +1,12 @@
+*--
+Created by 
+Andrea Castegnaro 
+and
+Aldo Curtis
+
+*--
+
+
 The AntTweakBar UI can be used to manipulate the values for the spirograph.
 
 WASD will move the camera up down left and right
@@ -12,3 +21,5 @@ The UI offers many values that can be tweaked, if by tweaking them you cannot se
 Some spirographs require a larget T value then others. Keep this in mind. 
 
 Adding a new spirogram will not be immediately visible because it copies all the settings from your previous one. It should become visible when you change some of the settings to differentiate it from the other one. 
+
+All code and assets is available at :https://github.com/Dizzly/GGJ2015
