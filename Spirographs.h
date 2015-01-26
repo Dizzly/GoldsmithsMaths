@@ -439,8 +439,8 @@ namespace octet {
         void app_init() {
             app_scene = new visual_scene();
             app_scene->create_default_camera_and_lights();
-            app_scene->get_camera_instance(0)->set_far_plane(101);
-
+            app_scene->get_camera_instance(0)->set_far_plane(100000000);
+            app_scene->get_camera_instance(0)->get_node()->access_nodeToParent()[3].z() = 6.5f;
             GetScreenSize();
 
             param_shader* shader = new param_shader("shaders/default.vs",
@@ -458,7 +458,7 @@ namespace octet {
             curve_.SetEquation(equations_[curr.functionIndex], 6, 2);
 
 
-            curr.params= { 5,3,5,80,3,3};
+            curr.params= { 1,80,1,80,3,3};
             curve_.SetParameters(Equation::InputParameters(curr.params.data(), 6));
 
             curve_.SetMaxResolution(1000);
@@ -484,12 +484,12 @@ namespace octet {
             // Adding season to bar
             TwAddVarRW(bar_, "Function",eNum, &curr.functionIndex, NULL);
             TwAddVarRO(bar_, "Number of arguments for function", TW_TYPE_INT32, &displayFunctionArgumentSize, "Help='The number of arguments the chosen function takes, others are ignored'");
-            TwAddVarRW(bar_, "Value1", TW_TYPE_FLOAT, &curr.params[0], " label='First Param' ");
-            TwAddVarRW(bar_, "Value2", TW_TYPE_FLOAT, &curr.params[1], " label='Second Param' ");
-            TwAddVarRW(bar_, "Value3", TW_TYPE_FLOAT, &curr.params[2], " label='Third Param' ");
-            TwAddVarRW(bar_, "Value4", TW_TYPE_FLOAT, &curr.params[3], " label='Fourth Param' ");
-            TwAddVarRW(bar_, "Value5", TW_TYPE_FLOAT, &curr.params[4], " label='Fifth Param' ");
-            TwAddVarRW(bar_, "Value6", TW_TYPE_FLOAT, &curr.params[5], " label='Sixth Param' ");
+            TwAddVarRW(bar_, "Value1", TW_TYPE_FLOAT, &curr.params[0], " label='First Param' Min=0.01f ");
+            TwAddVarRW(bar_, "Value2", TW_TYPE_FLOAT, &curr.params[1], " label='Second Param'Min=0.01f ");
+            TwAddVarRW(bar_, "Value3", TW_TYPE_FLOAT, &curr.params[2], " label='Third Param' Min=0.01f");
+            TwAddVarRW(bar_, "Value4", TW_TYPE_FLOAT, &curr.params[3], " label='Fourth Param' Min=0.01f");
+            TwAddVarRW(bar_, "Value5", TW_TYPE_FLOAT, &curr.params[4], " label='Fifth Param' Min=0.01f");
+            TwAddVarRW(bar_, "Value6", TW_TYPE_FLOAT, &curr.params[5], " label='Sixth Param' Min=0.01f");
             TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &curr.t, "Step=0.001f Min=0.0f Max=10f");
 
             TwAddVarRW(bar_, "Line Thickness", TW_TYPE_FLOAT, &curr.thickness, "");
