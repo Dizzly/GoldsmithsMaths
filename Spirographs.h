@@ -447,7 +447,7 @@ namespace octet {
                 "src/examples/Spirograph/custom_solid.fs");
             mat = new material(vec4(1,1,1,1),shader);
 
-            bezMat = new material(vec4(0, 0, 0, 1));
+            bezMat = new material(vec4(1, 1, 1, 1));
 
             bezMesh = new mesh(); 
 

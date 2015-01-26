@@ -12,7 +12,7 @@ public:
         float params[10];
         unsigned size;
 
-        InputParameters(){}
+        InputParameters(){ memset(params, 0, sizeof(float)* 10); }
 
         InputParameters(float* par, int s)
         {
@@ -29,7 +29,7 @@ public:
         float returns[10];
         unsigned size;
 
-        ReturnValues(){}
+        ReturnValues(){ memset(returns, 0, sizeof(float)* 10); }
 
         ReturnValues(float ret[], int s)
         {

@@ -127,12 +127,6 @@ public:
 private:
     octet::vec3 GetEquationReturn()
     {
-        if (equation_.GetRet().size == 3)
-        {
-            return octet::vec3(equation_.GetRet().returns[0],
-                equation_.GetRet().returns[1],
-                equation_.GetRet().returns[2]);
-        }
         return octet::vec3(equation_.GetRet().returns[0],
             equation_.GetRet().returns[1],
             0);
