@@ -38,7 +38,7 @@ namespace octet {
 
        std::vector<ref<mesh>> curveMeshes_;
        std::vector < mesh_instance*> meshInst_;
-       std::vector<Equation> equations_;
+       std::vector<Equation::EquatFunc*> equations_;
 
         TwBar* bar_;
         int value_;
@@ -46,21 +46,66 @@ namespace octet {
         typedef enum { COMPLEX, SPIRO1, SPIRO2 } FunctionsType;
         FunctionsType ftype = COMPLEX;
 
-        TwEnumVal functionsEV[3];
-        TwType ftypeTW;
+        int functionArgumentSizes[3];
+        int displayFunctionArgumentSize;
+        
 
-        bool hasChanged_;
+        struct SpiroState
+        {
+            float t;
+            vec4 color;
+            float thickness;
+            FunctionsType functionIndex;
+            std::vector<float> params;
+
+            const SpiroState& operator =(const SpiroState& sp)
+            {
+                t = sp.t;
+                color = sp.color;
+                thickness = sp.thickness;
+                functionIndex = sp.functionIndex;
+                params.clear();
+                params.insert(params.begin(), sp.params.begin(), sp.params.end());
+                return *this;
+            }
+            bool operator ==(const SpiroState& sp)
+            {
+                return (
+                    t == sp.t &&
+                    color.x()== sp.color.x() &&
+                    color.y()== sp.color.y() &&
+                    color.z()== sp.color.z() &&
+                    color.w() ==sp.color.w() &&
+                    thickness == sp.thickness&&
+                    functionIndex == sp.functionIndex&&
+                    params.size() == sp.params.size()&&
+                    ParamtersAreTheSame(sp.params)
+                    );
+            }
+
+        private:
+            bool ParamtersAreTheSame(const std::vector<float>& p)
+            {
+                for (int i = 0;i< params.size(); ++i)
+                {
+                    if (params[i] != p[i])
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        };
+
+        SpiroState curr;
+        SpiroState old;
 
         ParametricCurve curve_;
 
         Bezier bz;
         octet::random rand;
 
-        float t;
-        float oldT;
         int resolution;
-        float thickness_;
-        float oldThickness_;
 
         //for mouse movement
         float prev_mmX;
@@ -73,9 +118,6 @@ namespace octet {
         int currentSpiroMesh_;
         bool shouldPushMesh_;
         bool shouldResetSpiro_;
-
-        vec4 color;
-        vec4 oldColor;
 
         bool AreTheSame(vec4 v1, vec4 v2)
         {
@@ -223,9 +265,9 @@ namespace octet {
             {
                 if (mode == Mode::Spiro)
                 {
-                    params = { 80, 1, 80, 1, 3, 3 };
-                    curve_.SetParameters(Equation::InputParameters(params.data(), 6));
-                    curve_.Draw(curveMeshes_[currentSpiroMesh_], t);
+                    curr.params = { 80, 1, 80, 1, 3, 3 };
+                    curve_.SetParameters(Equation::InputParameters(curr.params.data(), 6));
+                    curve_.Draw(curveMeshes_[currentSpiroMesh_], curr.t);
                 }
             }
             if (is_key_going_down(key::key_space))
@@ -332,19 +374,16 @@ namespace octet {
         
         void Regen()
         {
-            //Checking for Function Changing
-            //Giving priority to this kind of change
-            if (){}
-            else if ((t != oldT || !AreTheSame(color, oldColor) || thickness_!=oldThickness_) && mode==Mode::Spiro)
+            if (!(curr==old) && mode==Mode::Spiro)
             {
-                curve_.SetColor(MakeColor(color));
-                curve_.SetParameters(Equation::InputParameters(params.data(), 6));
-                curve_.SetThickness(thickness_);
-                curve_.Draw(curveMeshes_[currentSpiroMesh_], t);
-                oldT = t;
-                oldThickness_ = thickness_;
-            }
-              
+                curve_.SetColor(MakeColor(curr.color));
+                curve_.SetEquation(equations_[curr.functionIndex]);
+                curve_.SetParameters(Equation::InputParameters(curr.params.data(),curr.params.size()));
+                curve_.SetThickness(curr.thickness);
+                curve_.Draw(curveMeshes_[currentSpiroMesh_], curr.t);
+                old = curr;
+                displayFunctionArgumentSize = functionArgumentSizes[old.functionIndex];
+            }           
         }
 
         void PushSpiroMesh()
@@ -370,25 +409,30 @@ namespace octet {
                 meshInst_[i]->set_flags(0);
             }
             params = { 80, 1, 1, 80, 3, 3 };
-            curve_.SetParameters(Equation::InputParameters(params.data(), 6));
-            curve_.SetThickness(thickness_);
-            curve_.SetColor(MakeColor(color));
+            curve_.SetEquation(equations_[curr.functionIndex]);
+            curve_.SetParameters(Equation::InputParameters(curr.params.data(), curr.params.size()));
+            curve_.SetThickness(curr.thickness);
+            curve_.SetColor(MakeColor(curr.color));
             currentSpiroMesh_ = 0;
         }
 
     public:
         /// this is called when we construct the class before everything is initialised.
-        Spirographs(int argc, char **argv) : app(argc, argv), color(1, 1, 1, 1) {
-            t = 1;
-            oldT = t;
-            oldColor = color;
-            hasChanged_ = false;
+        Spirographs(int argc, char **argv) : app(argc, argv) {
+            curr.t = 1.0f;
+            curr.color = vec4(1, 1, 1, 1);
             shouldPushMesh_ = false;
             shouldResetSpiro_ = false;
             currentSpiroMesh_ = 0;
-            thickness_ = 3;
-            oldThickness_ = thickness_;
-
+            curr.thickness = 3;
+            equations_.push_back(PrettyFunction);
+            equations_.push_back(Hypotrochoid);
+            equations_.push_back(Epitrochoid);
+            functionArgumentSizes[0] = 6;
+            functionArgumentSizes[1] = 3;
+            functionArgumentSizes[2] = 3;
+            curr.functionIndex=COMPLEX;
+            old = curr;
         }
 
         /// this is called once OpenGL is initialized
@@ -411,43 +455,45 @@ namespace octet {
 
             mode = Mode::Spiro;
 
-            //Spiro initialisation
-            curve_.SetEquation(PrettyFunction, 6, 2);
+            curve_.SetEquation(equations_[curr.functionIndex], 6, 2);
 
-            params= { 80,1,1,80,3,3};
-            curve_.SetParameters(Equation::InputParameters(params.data(), 6));
+
+            curr.params= { 5,3,5,80,3,3};
+            curve_.SetParameters(Equation::InputParameters(curr.params.data(), 6));
 
             curve_.SetMaxResolution(1000);
-            curve_.SetThickness(thickness_);
+            curve_.SetThickness(curr.thickness);
 
-            curve_.Draw(curveMeshes_[currentSpiroMesh_], t);
+            curve_.Draw(curveMeshes_[currentSpiroMesh_], curr.t);
 
             //TWBAr initialisation
             TwInit(TW_OPENGL, NULL);
-            TwWindowSize(768, 768 - 76);//minus 30 because "I dont know why"
+            TwWindowSize(768, 768 - 40);//minus 30 because "I dont know why"
                        
 
             bar_ = TwNewBar("TweakBar");
 
+            TwEnumVal functionsEV[3];
             //FunctionEnumInitialisation
             // Defining function enum type
             functionsEV[0] = { COMPLEX, "Complex" };
             functionsEV[1] = { SPIRO1, "Spiro 1" };
             functionsEV[2] = { SPIRO2, "Spiro 2" };
 
-            ftypeTW = TwDefineEnum("FunctionType", functionsEV, 3);
+            TwType eNum = TwDefineEnum("FunctionType", functionsEV, 3);
             // Adding season to bar
-            TwAddVarRW(bar_, "Function", ftypeTW, &ftype, NULL);
+            TwAddVarRW(bar_, "Function",eNum, &curr.functionIndex, NULL);
+            TwAddVarRO(bar_, "Number of arguments for function", TW_TYPE_INT32, &displayFunctionArgumentSize, "Help='The number of arguments the chosen function takes, others are ignored'");
+            TwAddVarRW(bar_, "Value1", TW_TYPE_FLOAT, &curr.params[0], " label='First Param' ");
+            TwAddVarRW(bar_, "Value2", TW_TYPE_FLOAT, &curr.params[1], " label='Second Param' ");
+            TwAddVarRW(bar_, "Value3", TW_TYPE_FLOAT, &curr.params[2], " label='Third Param' ");
+            TwAddVarRW(bar_, "Value4", TW_TYPE_FLOAT, &curr.params[3], " label='Fourth Param' ");
+            TwAddVarRW(bar_, "Value5", TW_TYPE_FLOAT, &curr.params[4], " label='Fifth Param' ");
+            TwAddVarRW(bar_, "Value6", TW_TYPE_FLOAT, &curr.params[5], " label='Sixth Param' ");
+            TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &curr.t, "Step=0.001f Min=0.0f Max=10f");
 
-            TwAddVarRW(bar_, "Value1", TW_TYPE_FLOAT, &params[0], " label='First Param' ");
-            TwAddVarRW(bar_, "Value2", TW_TYPE_FLOAT, &params[1], " label='Second Param' ");
-            TwAddVarRW(bar_, "Value3", TW_TYPE_FLOAT, &params[2], " label='Third Param' ");
-            TwAddVarRW(bar_, "Value4", TW_TYPE_FLOAT, &params[3], " label='Fourth Param' ");
-            TwAddVarRW(bar_, "Value5", TW_TYPE_FLOAT, &params[4], " label='Fifth Param' ");
-            TwAddVarRW(bar_, "Value6", TW_TYPE_FLOAT, &params[5], " label='Sixth Param' ");
-            TwAddVarRW(bar_, "T value", TW_TYPE_FLOAT, &t, "Step=0.001f Min=0.0f Max=1.0f");
-            TwAddVarRW(bar_, "Line Thickness", TW_TYPE_FLOAT, &thickness_, "");
-            TwAddVarRW(bar_, "Line Color", TW_TYPE_COLOR3F, &color, " label='LineColor' ");
+            TwAddVarRW(bar_, "Line Thickness", TW_TYPE_FLOAT, &curr.thickness, "");
+            TwAddVarRW(bar_, "Line Color", TW_TYPE_COLOR3F, &curr.color, " label='LineColor' ");
             TwAddButton(bar_, "New Spiro", MakeTrue,&shouldPushMesh_,"");
             TwAddButton(bar_, "Clear Spiros", MakeTrue, &shouldResetSpiro_, "");
             
