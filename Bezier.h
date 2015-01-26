@@ -1,9 +1,5 @@
 #ifndef Bezier_H_INCLUDED
 #define Bezier_H_INCLUDED
-
-#include "Line.h"
-
-
 //simple lines using GLLines, may require extending
 class Bezier
 {

@@ -1,9 +1,5 @@
 #ifndef SIMPLELINE_H_INCLUDED
 #define SIMPLELINE_H_INCLUDED
-
-#include "Line.h"
-
-
 //simple lines using GLLines, may require extending
 class SimpleLine
 {
