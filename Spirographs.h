@@ -332,7 +332,10 @@ namespace octet {
         
         void Regen()
         {
-            if ((t != oldT || !AreTheSame(color, oldColor) || thickness_!=oldThickness_) && mode==Mode::Spiro)
+            //Checking for Function Changing
+            //Giving priority to this kind of change
+            if (){}
+            else if ((t != oldT || !AreTheSame(color, oldColor) || thickness_!=oldThickness_) && mode==Mode::Spiro)
             {
                 curve_.SetColor(MakeColor(color));
                 curve_.SetParameters(Equation::InputParameters(params.data(), 6));
@@ -340,7 +343,8 @@ namespace octet {
                 curve_.Draw(curveMeshes_[currentSpiroMesh_], t);
                 oldT = t;
                 oldThickness_ = thickness_;
-            }           
+            }
+              
         }
 
         void PushSpiroMesh()
