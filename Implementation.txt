@@ -1,0 +1,15 @@
+Implementation
+
+Parametric curves have a verity of equations that can represent them, and these equations can differ in both the values they require for input and how many values they output, for example in the generation of a 3D curve it will need return 3 values; for 2D 2 values are needed.
+
+The Equation class implements support for abstract functions, providing a vector of arguments and return values to suit any number of implementations. By storing a pointer to the function representing the equation it is easy to change between equations on the fly, as seen in the code where a vector of equation function pointers are stored and are swapped in and out at will. 
+
+The parametric converts the curve defined in equation form into geometry Line segments are used to represent the curve, performing dynamic sampling to accurately and efficiently represent the curve with the fewest lines possible. Areas with a low curvature or straight lines use less lines to represent them as they can be approximated by a single line segment where areas with high curvature are given higher resolution. 
+
+The curvature of an area is calculated using three points along the line to construct a triangle and calculate its area, the points are sampled at regular intervals and the line is considered curved if the area is above a certain threshold. <REFERENCE ANTI GRAIN “Adaptive subdivision of curve”> The points are generated from the t, t+d and ((t+d)-t)/2 with the third point being halfway between the other two. This is implemented recursively, upon finding a curved section beyond tolerance the algorithm is called using t and the half point, and then on the half point to t+d, successively dividing the curve.
+
+The Bezier line is implemented using 4 control points in 3D space. It uses a pool of control points which makes the insertion of new control points efficient and easy. The line is generated using the quadratic Bezier equation, and evaluating t from 0 to 1 to form the line from the start to the end. 
+
+AntTweakBar is free to use UI that can be used to tweak internal variables. The curve is regenerated  every time a change is detected in the variables, and will update live with changes of the variables on the UI, this is simply done by saving the old state variables and comparing them to the current ones. 
+
+
